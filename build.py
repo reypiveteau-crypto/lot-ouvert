@@ -138,6 +138,7 @@ def page(chemin, titre, desc, corps, index=True, fil=()):
     doc = f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{E(titre)}</title><meta name="description" content="{E(desc)}">
+<meta name="google-site-verification" content="Bn20ldA-SUhsySdq8ciYJMOjD6Uqmb6ymF6bQsDG6r8">
 <link rel="canonical" href="{E(canon)}">{'' if index else '<meta name="robots" content="noindex,follow">'}
 <link rel="stylesheet" href="{rel}style.css"></head><body>
 <header class="top"><a class="brand" href="{rel or './'}">{SITE}</a><span>marchés publics ouverts · {REGION}</span></header>
