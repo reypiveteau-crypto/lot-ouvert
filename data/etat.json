@@ -1,11 +1,12 @@
 {
- "date": "2026-10-09",
- "recus": 701,
- "retenus": 678,
- "ouverts": 342,
- "resultats": 3316,
- "avec_historique": 269,
- "fiches_entreprises": 546,
- "relances": 251,
- "pages_indexables": 2343
+ "date": "2026-10-10",
+ "recus": 15356,
+ "retenus": 14694,
+ "ouverts": 7069,
+ "resultats": 97334,
+ "avec_historique": 5842,
+ "fiches_entreprises": 7881,
+ "relances": 7593,
+ "pages_indexables": 32655,
+ "poids_mo": 272
 }
