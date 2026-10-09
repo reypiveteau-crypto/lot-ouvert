@@ -16,6 +16,7 @@ concurrency:
 jobs:
   site:
     runs-on: ubuntu-latest
+    timeout-minutes: 150
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
@@ -24,6 +25,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Reprendre les résultats déjà lus
+        uses: actions/cache@v4
+        with:
+          path: cache
+          key: resultats-v1-${{ github.run_id }}
+          restore-keys: resultats-v1-
       - name: Générer le site
         env:
           SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}

@@ -83,12 +83,8 @@ def confirmations():
 
 def hebdo():
     today = dt.datetime.now(dt.timezone(dt.timedelta(hours=1))).date()
-    vus, ouverts = set(), []
-    for rec in build.fetch(today - dt.timedelta(days=build.JOURS)):
-        a = build.normaliser(rec, today)
-        if a and a["id"] not in vus and a["reste"] >= 0 and a["paru"]:
-            vus.add(a["id"])
-            ouverts.append(a)
+    _, tous = build.charger_marches(today)
+    ouverts = [x for x in tous if x["reste"] >= 0 and x["paru"]]
     if not ouverts:
         sys.exit("Aucun avis récupéré : aucun e-mail envoyé.")
     semaine = (today - dt.timedelta(days=7)).isoformat()
