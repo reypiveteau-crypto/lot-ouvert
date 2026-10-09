@@ -110,8 +110,10 @@ def normaliser(rec, today):
     if any(m in nature for m in ("attribution", "rectificatif", "annulation", "résultat", "resultat", "modification")):
         return None
     limite, paru = parse_date(r.get("datelimitereponse")), parse_date(r.get("dateparution"))
-    idweb, objet = str(r.get("idweb") or "").strip(), " ".join(str(r.get("objet") or "").split())
+    idweb, objet = str(r.get("idweb") or "").strip(), " ".join(html.unescape(str(r.get("objet") or "")).split())
     if not (idweb and objet and limite):
+        return None
+    if (limite - today).days > 240:   # date limite invraisemblable : erreur de saisie dans l'avis
         return None
     deps = [c for c in (d.zfill(2) for d in liste(r.get("codedepartement"))) if c in DEPS]
     if not deps:
@@ -120,7 +122,7 @@ def normaliser(rec, today):
     if not url.startswith("https://www.boamp.fr/"):
         url = "https://www.boamp.fr/pages/avis/?q=" + urllib.parse.quote(f'idweb:"{idweb}"')
     return {
-        "id": idweb, "objet": objet, "acheteur": " ".join(str(r.get("nomacheteur") or "Acheteur non indiqué").split()),
+        "id": idweb, "objet": objet, "acheteur": " ".join(html.unescape(str(r.get("nomacheteur") or "Acheteur non indiqué")).split()),
         "paru": paru, "limite": limite, "reste": (limite - today).days, "deps": deps,
         "metiers": liste(r.get("descripteurlibelle")), "type": ", ".join(t.capitalize() for t in liste(r.get("typemarche"))),
         "procedure": str(r.get("procedurelibelle") or "").strip(), "url": url,
