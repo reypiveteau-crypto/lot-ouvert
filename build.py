@@ -4,11 +4,14 @@ Aucune dépendance. Lancé chaque nuit par GitHub Actions (.github/workflows/sit
 import datetime as dt, html, json, os, re, sys, unicodedata, urllib.error, urllib.parse, urllib.request
 from collections import defaultdict
 from pathlib import Path
+import statistics
+import extraire
 
 SITE = "Lot Ouvert"
 BASE = os.environ.get("SITE_URL", "https://example.github.io/lot-ouvert").rstrip("/")
 OUT = Path("_site")
-JOURS = 75            # fenêtre de publication examinée
+JOURS = 75            # fenêtre de publication examinée pour les avis de marché
+HISTORIQUE = 730      # fenêtre des résultats de marché (attributions)
 API = "https://boamp-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/boamp"
 REGION = "Bourgogne-Franche-Comté"
 DEPS = {  # code: (nom, préposition + nom)
@@ -38,52 +41,39 @@ def fr(d):
 # ---------- données ----------
 def http_json(url):
     req = urllib.request.Request(url, headers={"User-Agent": "lot-ouvert/1.0 (site statique, 1 requete par jour)"})
-    with urllib.request.urlopen(req, timeout=120) as r:
+    with urllib.request.urlopen(req, timeout=600) as r:
         return json.load(r)
 
 
-def fetch(depuis):
-    """Essaie plusieurs formes de requête, de la plus légère à la plus simple."""
+def export(where, select=None):
+    p = {"where": where, "limit": -1}
+    if select:
+        p["select"] = select
+    return http_json(f"{API}/exports/json?" + urllib.parse.urlencode(p))
+
+
+def fetch(depuis, nature="APPEL_OFFRE"):
+    """Avis de marché (ou résultats) parus depuis une date dans les départements suivis, contenu détaillé compris."""
     fx = os.environ.get("BOAMP_FIXTURE")
     if fx:
-        return json.load(open(fx, encoding="utf-8"))
-    date = f"dateparution >= date'{depuis.isoformat()}'"
+        data = json.load(open(fx, encoding="utf-8"))
+        if isinstance(data, dict):
+            return data["marches" if nature == "APPEL_OFFRE" else "attributions"]
+        return data if nature == "APPEL_OFFRE" else []
     deps = " or ".join(f'code_departement = "{c}"' for c in DEPS)
-    sel = "idweb,objet,nomacheteur,dateparution,datelimitereponse,code_departement,descripteur_libelle,type_marche,nature,nature_libelle,procedure_libelle,url_avis"
-    essais = [
-        ("export filtré", f"{API}/exports/json?" + urllib.parse.urlencode({"where": f"{date} and ({deps})", "select": sel, "limit": -1})),
-        ("export sans select", f"{API}/exports/json?" + urllib.parse.urlencode({"where": f"{date} and ({deps})", "limit": -1})),
-    ]
-    for nom, url in essais:
+    where = f"dateparution >= date'{depuis.isoformat()}' and nature = \"{nature}\" and ({deps})"
+    sel = "idweb,objet,nomacheteur,dateparution,datelimitereponse,code_departement,descripteur_libelle,type_marche,nature,nature_libelle,procedure_libelle,famille_libelle,titulaire,url_avis,donnees"
+    for nom, s_ in (("avec détails", sel), ("sans détails", sel.replace(",donnees", ""))):
         try:
-            data = http_json(url)
-            print(f"[données] {nom} : {len(data)} enregistrements")
+            data = export(where, s_)
+            print(f"[données] {nature} {nom} : {len(data)} enregistrements")
             if data:
-                print("[données] champs :", ", ".join(sorted(data[0].keys())))
                 return data
         except urllib.error.HTTPError as e:
-            print(f"[données] {nom} : HTTP {e.code} {e.read()[:400]!r}")
+            print(f"[données] {nature} {nom} : HTTP {e.code} {e.read()[:400]!r}")
         except Exception as e:  # réseau, JSON
-            print(f"[données] {nom} : {e!r}")
-    # dernier recours : un département à la fois, par pages de 100
-    out = []
-    for c in DEPS:
-        off = 0
-        while off < 9900:
-            url = f"{API}/records?" + urllib.parse.urlencode({"where": date, "refine": f"code_departement:{c}", "limit": 100, "offset": off, "order_by": "dateparution desc"})
-            try:
-                page = http_json(url).get("results", [])
-            except urllib.error.HTTPError as e:
-                print(f"[données] pages {c} : HTTP {e.code} {e.read()[:400]!r}")
-                break
-            out += page
-            if len(page) < 100:
-                break
-            off += 100
-    print(f"[données] pagination : {len(out)} enregistrements")
-    if out:
-        print("[données] champs :", ", ".join(sorted(out[0].keys())))
-    return out
+            print(f"[données] {nature} {nom} : {e!r}")
+    return []
 
 
 def liste(v):
@@ -131,7 +121,39 @@ def normaliser(rec, today):
         "paru": paru, "limite": limite, "reste": (limite - today).days, "deps": deps,
         "metiers": liste(r.get("descripteurlibelle")), "type": ", ".join(t.capitalize() for t in liste(r.get("typemarche"))),
         "procedure": str(r.get("procedurelibelle") or "").strip(), "url": url,
+        "famille": str(r.get("famillelibelle") or "").strip(),
+        "d": extraire.details_marche(r.get("donnees")), "siret": extraire.siret_acheteur(r.get("donnees")),
     }
+
+
+def normaliser_resultat(rec):
+    """Un résultat de marché (avis d'attribution) : qui a gagné, combien d'offres, quel montant, quand c'est publié."""
+    r = {re.sub(r"[^a-z]", "", k.lower()): v for k, v in rec.items()}
+    idweb, objet, paru = str(r.get("idweb") or "").strip(), " ".join(html.unescape(str(r.get("objet") or "")).split()), parse_date(r.get("dateparution"))
+    if not (idweb and objet and paru):
+        return None
+    d = extraire.details_attribution(r.get("donnees"))
+    vus, gagnants = set(), []
+    for g in liste(r.get("titulaire")) + d.get("titulaires", []):
+        g = " ".join(html.unescape(g).split())
+        if g and slug(g) not in vus and len(g) < 120 and not slug(g).startswith(("inconnu", "non-renseigne", "sans-objet")):
+            vus.add(slug(g))
+            gagnants.append(g)
+    url = str(r.get("urlavis") or "")
+    if not url.startswith("https://www.boamp.fr/"):
+        url = "https://www.boamp.fr/pages/avis/?q=" + urllib.parse.quote(f'idweb:"{idweb}"')
+    return {"id": idweb, "objet": objet, "acheteur": " ".join(html.unescape(str(r.get("nomacheteur") or "")).split()), "paru": paru,
+            "deps": [c for c in (x.zfill(2) for x in liste(r.get("codedepartement"))) if c in DEPS],
+            "metiers": [slug(m) for m in liste(r.get("descripteurlibelle"))], "gagnants": gagnants, "texte": d.get("texte", ""),
+            "offres": d.get("offres", []), "montant": d.get("montant"), "url": url, "siret": extraire.siret_acheteur(r.get("donnees"))}
+
+
+def euros(m):
+    return f"{int(round(m)):,}".replace(",", "\u202f") + "\u00a0€"
+
+
+def mois_annee(d):
+    return f"{MOIS[d.month - 1]} {d.year}"
 
 
 # ---------- rendu ----------
@@ -160,23 +182,128 @@ def page(chemin, titre, desc, corps, index=True, fil=()):
         SITEMAP.append(canon)
 
 
-def carte(a):
+def faits(a):
+    d = a["d"]
+    f = []
+    if d.get("montant"):
+        f.append(f"estimé à {euros(d['montant'])}")
+    if d.get("lots"):
+        f.append(f"{len(d['lots'])} lots")
+    if d.get("duree"):
+        f.append(f"durée {d['duree']}")
+    if d.get("visite"):
+        f.append("visite obligatoire")
+    return f
+
+
+def carte(a, rel=""):
     r = a["reste"]
-    etat = f"J-{r}"
     tags = "".join(f"<li>{E(m)}</li>" for m in a["metiers"][:6])
     lieux = ", ".join(f"{DEPS[c][0]} ({c})" for c in a["deps"])
     meta = " · ".join(x for x in (a["type"], a["procedure"], lieux) if x)
+    f = faits(a)
+    n = len(HIST.get(a["id"], []))
+    histo = f"{n} marché{'s' if n > 1 else ''} déjà attribué{'s' if n > 1 else ''} par cet acheteur" if n else "Analyse de l'avis"
     return f"""<article class="avis{' urgent' if r <= 7 else ''}">
-<div class="limite"><b>{etat}</b><span>remise le {fr(a['limite'])}</span></div>
-<div class="txt"><h3>{E(a['objet'])}</h3><p class="ach">{E(a['acheteur'])}</p><p class="meta">{E(meta)}</p>
+<div class="limite"><b>J-{r}</b><span>remise le {fr(a['limite'])}</span></div>
+<div class="txt"><h3><a href="{rel}avis/{E(a['id'])}/">{E(a['objet'])}</a></h3><p class="ach">{E(a['acheteur'])}</p><p class="meta">{E(meta)}</p>
+{f'<p class="faits">{E(" · ".join(f))}</p>' if f else ''}
 {f'<ul class="tags">{tags}</ul>' if tags else ''}
-<p class="src"><a href="{E(a['url'])}" rel="nofollow noopener">Avis officiel n° {E(a['id'])} sur boamp.fr</a>{f" · publié le {fr(a['paru'])}" if a['paru'] else ''}</p></div></article>"""
+<p class="src"><a class="plus" href="{rel}avis/{E(a['id'])}/">{histo} →</a> · <a href="{E(a['url'])}" rel="nofollow noopener">avis officiel n° {E(a['id'])}</a>{f" · publié le {fr(a['paru'])}" if a['paru'] else ''}</p></div></article>"""
 
 
-def bloc_liste(avis):
+def ligne_resultat(r, meme=False):
+    qui = f"Attribué à : <b>{E(', '.join(r['gagnants'][:6]))}</b>{' et autres' if len(r['gagnants']) > 6 else ''}" if r["gagnants"] else (f"Résultat publié : {E(r['texte'])}" if r["texte"] else "Titulaire non indiqué dans les données")
+    plus = []
+    if r["offres"]:
+        o = r["offres"]
+        plus.append(f"{o[0]} offre{'s' if o[0] > 1 else ''} reçue{'s' if o[0] > 1 else ''}" if len(set(o)) == 1 else f"{min(o)} à {max(o)} offres reçues selon les lots")
+    if r["montant"]:
+        plus.append(f"montant publié : {euros(r['montant'])}")
+    return f"""<li class="res"><span class="quand">{mois_annee(r['paru'])}</span><div><a href="{E(r['url'])}" rel="nofollow noopener">{E(r['objet'])}</a>{' <span class="meme">même métier</span>' if meme else ''}
+<p>{qui}</p>{f'<p class="meta">{E(" · ".join(plus))}</p>' if plus else ''}</div></li>"""
+
+
+def bloc_classement(c, s, m, prep):
+    """Qui a remporté les marchés d'un métier dans un département, d'après les résultats publiés."""
+    res = RES_COMBO.get((c, s), [])
+    if not res:
+        return ""
+    compte, forme, dernier = {}, {}, {}
+    for r in res:
+        for g in r["gagnants"]:
+            k = slug(g)
+            compte[k] = compte.get(k, 0) + 1
+            forme.setdefault(k, g)
+            if k not in dernier or r["paru"] > dernier[k]["paru"]:
+                dernier[k] = r
+    if not compte:
+        return ""
+    top = sorted(compte, key=lambda k: (-compte[k], forme[k]))[:10]
+    lignes = "".join(f"<tr><td>{E(forme[k])}</td><td class='n'>{compte[k]}</td><td>{E(dernier[k]['acheteur'])}, {mois_annee(dernier[k]['paru'])}</td></tr>" for k in top)
+    offres = [r["offres"][0] for r in res if r["offres"]]
+    stat = f" Quand le nombre d'offres est publié ({len(offres)} résultat{'s' if len(offres) > 1 else ''}), la médiane est de {int(statistics.median(offres))} offre{'s' if statistics.median(offres) > 1 else ''} par marché." if len(offres) >= 3 else ""
+    return f"""<section id="titulaires"><h2>Qui a remporté les marchés « {E(m)} » {prep}</h2>
+<p class="chapo">{len(res)} résultat{'s' if len(res) > 1 else ''} de marché publié{'s' if len(res) > 1 else ''} depuis 24 mois.{stat}</p>
+<div class="tablo"><table><thead><tr><th>Entreprise titulaire</th><th class="n">Marchés</th><th>Dernier marché remporté</th></tr></thead><tbody>{lignes}</tbody></table></div>
+<p class="petit">D'après les résultats publiés au BOAMP. Tous les marchés attribués n'y sont pas publiés.</p></section>"""
+
+
+def page_avis(a, metiers, dslug):
+    d, hist = a["d"], HIST.get(a["id"], [])
+    dl = []
+    if d.get("montant"):
+        dl.append(("Montant estimé", euros(d["montant"])))
+    if d.get("duree"):
+        dl.append(("Durée", d["duree"]))
+    if d.get("lieu"):
+        dl.append(("Lieu d'exécution", E(d["lieu"])))
+    if d.get("lots"):
+        dl.append((f"{len(d['lots'])} lots", "<ul>" + "".join(f"<li>{E(x)}</li>" for x in d["lots"][:25]) + "</ul>" + (f"<p class='petit'>et {len(d['lots']) - 25} autres</p>" if len(d["lots"]) > 25 else "")))
+    if d.get("criteres"):
+        crit = "".join(f"<li>{E(n)}{f' : <b>{p:g} {u}</b>' if p else ''}</li>" for n, p, u in d["criteres"])
+        dl.append(("Critères d'attribution" + (" (premier lot)" if d.get("criteres_premier_lot") else ""), f"<ul>{crit}</ul>"))
+    if d.get("visite"):
+        dl.append(("Visite", E(d["visite"]) if isinstance(d["visite"], str) else "Une visite obligatoire est mentionnée dans l'avis."))
+    if d.get("references"):
+        dl.append(("Capacités demandées", E(d["references"])))
+    essentiel = "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in dl) or "<dt>Détails</dt><dd>Cet avis ne fournit pas d'informations structurées. Consultez l'avis officiel.</dd>"
+    lieux = ", ".join(f"{DEPS[c][0]} ({c})" for c in a["deps"])
+    memes = [r for r in hist if set(r["metiers"]) & {slug(m) for m in a["metiers"]}]
+    autres = [r for r in hist if r not in memes]
+    if hist:
+        intro = f"{len(hist)} résultat{'s' if len(hist) > 1 else ''} de marché publié{'s' if len(hist) > 1 else ''} par cet acheteur depuis 24 mois" + (f", dont {len(memes)} dans le même métier." if memes else ". Aucun dans le même métier.")
+        histo = f'<p class="chapo">{intro}</p><ul class="resultats">' + "".join(ligne_resultat(r, True) for r in memes[:12]) + "".join(ligne_resultat(r) for r in autres[:max(0, 12 - len(memes[:12]))]) + "</ul>"
+        if len(hist) > 12:
+            histo += f'<p class="petit">Les 12 plus pertinents sur {len(hist)} sont affichés.</p>'
+    else:
+        histo = '<p class="vide">Aucun résultat de marché publié au BOAMP par cet acheteur depuis 24 mois. Cela ne signifie pas qu\'il n\'a rien attribué : tous les résultats n\'y sont pas publiés.</p>'
+    classements = ""
+    for m in a["metiers"]:
+        for c in a["deps"]:
+            b = bloc_classement(c, slug(m), m, DEPS[c][1])
+            if b:
+                classements = b + f'<p><a href="../../{dslug[c]}/{slug(m)}/">Tous les avis ouverts « {E(m)} » {DEPS[c][1]}</a></p>'
+                break
+        if classements:
+            break
+    r = a["reste"]
+    corps = f"""<h1 class="petit-h1">{E(a['objet'])}</h1>
+<p class="chapo"><b>{E(a['acheteur'])}</b> · {E(lieux)}</p>
+<p class="bandeau"><span class="compte">J-{r}</span> Remise des offres le {fr(a['limite'])} · {E(" · ".join(x for x in (a['type'], a['procedure'], a['famille']) if x))}</p>
+<section class="essentiel"><h2>L'essentiel de l'avis</h2><dl>{essentiel}</dl>
+<p class="actions">{f'<a class="bouton" href="{E(d["dossier"])}" rel="nofollow noopener">Accéder au dossier de consultation</a>' if d.get('dossier') else ''}
+<a href="{E(a['url'])}" rel="nofollow noopener">Lire l'avis officiel n° {E(a['id'])} sur boamp.fr</a></p></section>
+<section><h2>Ce que cet acheteur a déjà attribué</h2>{histo}</section>
+{classements}"""
+    fil = [("Accueil", "")] + ([(DEPS[a["deps"][0]][0], f"{dslug[a['deps'][0]]}/")] if a["deps"] else [])
+    page(f"avis/{a['id']}", f"{a['objet'][:90]} | {SITE}", f"{a['acheteur']} : remise des offres le {fr(a['limite'])}. Détails de l'avis, marchés déjà attribués par cet acheteur et titulaires.", corps, fil=fil)
+
+
+def bloc_liste(avis, rel=""):
     if not avis:
         return '<p class="vide">Aucun avis ouvert aujourd\'hui dans cette rubrique. La page est mise à jour chaque matin.</p>'
-    return "\n".join(carte(a) for a in sorted(avis, key=lambda a: (a["limite"], a["id"])))
+    return "\n".join(carte(a, rel) for a in sorted(avis, key=lambda a: (a["limite"], a["id"])))
 
 
 def liens(items):
@@ -217,6 +344,16 @@ section{display:flex;flex-direction:column;gap:.9rem}
 .tags{list-style:none;margin:.2rem 0;padding:0;display:flex;flex-wrap:wrap;gap:.35rem}.tags li{font-size:.76rem;border:1px solid var(--line);padding:.05rem .45rem;border-radius:99px}
 .liens{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:.35rem 1.5rem}
 .liens li{display:flex;justify-content:space-between;gap:.6rem;border-bottom:1px solid var(--line);padding-block:.3rem}.liens span{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--muted);font-size:.85rem}
+.avis h3 a{color:var(--ink);text-decoration:none}.avis h3 a:hover{text-decoration:underline}.faits{font-size:.86rem;font-weight:600}.plus{font-weight:600}
+.petit-h1{font-size:clamp(1.3rem,3.4vw,1.8rem)}.bandeau{margin:0;font-size:.95rem}
+.essentiel{background:var(--surface);border:1px solid var(--line);padding:1.2rem}.essentiel dl{margin:0;display:grid;grid-template-columns:11rem minmax(0,1fr);gap:.7rem 1.2rem}
+.essentiel dt{font-weight:600;color:var(--muted);font-size:.9rem}.essentiel dd{margin:0;overflow-wrap:anywhere}.essentiel ul{margin:0;padding-left:1.1rem}
+.actions{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;margin:.4rem 0 0}.bouton{text-decoration:none;display:inline-block}
+.resultats{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}.res{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:1rem;border-top:1px solid var(--line);padding-block:.8rem}
+.res p{margin:.2rem 0 0;overflow-wrap:anywhere}.quand{font:.85rem ui-monospace,Menlo,Consolas,monospace;color:var(--muted)}
+.meme{font-size:.72rem;background:var(--marker);color:var(--marker-ink);padding:.05rem .4rem;border-radius:2px;white-space:nowrap}
+.tablo{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.8rem;color:var(--muted);font-weight:600}.n{text-align:right;font-variant-numeric:tabular-nums}
 .vide{background:var(--surface);border:1px dashed var(--line);padding:1rem;color:var(--muted);margin:0}
 footer{border-top:1px solid var(--line);padding-block:1.2rem 2.5rem;font-size:.82rem;color:var(--muted)}footer p{margin:.3rem 0}
 .alerte{border:2px solid var(--ink);background:var(--surface);padding:1.2rem;display:flex;flex-direction:column;gap:.6rem}.alerte p{margin:0}
@@ -224,7 +361,7 @@ footer{border-top:1px solid var(--line);padding-block:1.2rem 2.5rem;font-size:.8
 .champ input[type=email]{flex:1 1 14rem;min-width:0;font:inherit;padding:.6rem .7rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:3px}
 .alerte button,.bouton{font:600 1rem inherit;font-family:inherit;background:var(--accent);color:var(--bg);border:0;border-radius:3px;padding:.65rem 1.1rem;cursor:pointer}
 .pot{position:absolute;left:-999rem}.etat{font-weight:600;min-height:1.4em}.petit{font-size:.8rem;color:var(--muted)}
-@media (max-width:34rem){.avis{grid-template-columns:minmax(0,1fr)}.limite{flex-direction:row;align-items:baseline;gap:.7rem}}"""
+@media (max-width:34rem){.essentiel dl,.res{grid-template-columns:minmax(0,1fr);gap:.2rem}.essentiel dd{margin-bottom:.6rem}.avis{grid-template-columns:minmax(0,1fr)}.limite{flex-direction:row;align-items:baseline;gap:.7rem}}"""
 
 
 MENTION_ALERTES = ("Si vous créez une alerte, votre adresse e-mail est enregistrée avec le métier et le département choisis, dans le seul but de vous envoyer cette alerte. "
@@ -264,7 +401,7 @@ if(a){
 
 
 def main():
-    global TODAY, SITEMAP
+    global TODAY, SITEMAP, HIST, RES_COMBO
     TODAY = dt.datetime.now(dt.timezone(dt.timedelta(hours=1))).date()
     SITEMAP = []
     brut = fetch(TODAY - dt.timedelta(days=JOURS))
@@ -276,6 +413,28 @@ def main():
             tous.append(a)
     ouverts = [a for a in tous if a["reste"] >= 0]
     print(f"[site] {len(brut)} reçus, {len(tous)} avis de marché retenus, {len(ouverts)} ouverts")
+
+    # résultats de marché des 24 derniers mois : qui a gagné quoi, chez quel acheteur
+    resultats, vus_r = [], set()
+    for rec in fetch(TODAY - dt.timedelta(days=HISTORIQUE), "ATTRIBUTION"):
+        r = normaliser_resultat(rec)
+        if r and r["id"] not in vus_r:
+            vus_r.add(r["id"])
+            resultats.append(r)
+    par_siret, par_nom, RES_COMBO = defaultdict(list), defaultdict(list), defaultdict(list)
+    for r in resultats:
+        if r["siret"]:
+            par_siret[r["siret"]].append(r)
+        par_nom[slug(r["acheteur"])].append(r)
+        for c in r["deps"]:
+            for m in r["metiers"]:
+                RES_COMBO[(c, m)].append(r)
+    HIST = {}
+    for a in ouverts:
+        h = {r["id"]: r for r in (par_siret.get(a["siret"], []) if a["siret"] else []) + par_nom.get(slug(a["acheteur"]), [])}
+        if h:
+            HIST[a["id"]] = sorted(h.values(), key=lambda r: r["paru"], reverse=True)
+    print(f"[site] {len(resultats)} résultats de marché, {sum(1 for r in resultats if r['gagnants'] or r['texte'])} avec titulaire, {len(HIST)} avis ouverts avec historique acheteur")
     if len(tous) < int(os.environ.get("MIN_AVIS", "20")):
         sys.exit("Trop peu d'avis exploitables : le site en ligne est laissé tel quel.")
 
@@ -294,6 +453,11 @@ def main():
         for c in a["deps"]:
             for m in a["metiers"]:
                 combos_vus.add((c, slug(m)))
+    for r in resultats:                 # un métier vu seulement dans les résultats a aussi sa page
+        for c in r["deps"]:
+            for m in r["metiers"]:
+                if m in metiers:
+                    combos_vus.add((c, m))
     for a in ouverts:
         for c in a["deps"]:
             par_dep[c].append(a)
@@ -307,7 +471,7 @@ def main():
 
     # accueil
     corps = f"""<h1>Les marchés publics ouverts en {REGION}, par métier et par département</h1>
-<p class="chapo"><span class="compte">{n_avis(len(ouverts))}</span> au {fr(TODAY)}. Chaque matin, les avis du Bulletin officiel sont triés par date limite de remise des offres. Consultation gratuite, sans inscription.</p>
+<p class="chapo"><span class="compte">{n_avis(len(ouverts))}</span> au {fr(TODAY)}. Pour chaque avis : l'essentiel en un coup d'œil, le lien direct vers le dossier à télécharger, et ce que l'acheteur a déjà attribué, à qui, avec combien d'offres reçues.</p>
 <section><h2>Par département</h2>{liens([(f"{DEPS[c][0]} ({c})", f"{dslug[c]}/", len(par_dep[c])) for c in DEPS])}</section>
 <section><h2>Par métier</h2>{liens([(metiers[s], f"metier/{s}/", len(par_met[s])) for s in tri_met if par_met[s]])}</section>
 <section><h2>À remettre en premier</h2>{bloc_liste(sorted(ouverts, key=lambda a: a['limite'])[:15])}</section>"""
@@ -321,7 +485,7 @@ def main():
         corps = f"""<h1>Appels d'offres {prep} ({c})</h1>
 <p class="chapo"><span class="compte">{n_avis(len(av))}</span> au {fr(TODAY)}, classés par date limite de remise des offres.</p>
 <section><h2>Par métier {prep}</h2>{liens([(metiers[s], f"{s}/", len(par_combo[(c, s)])) for s in mets if par_combo[(c, s)]]) if av else ''}</section>
-<section><h2>Tous les avis ouverts</h2>{bloc_liste(av)}</section>"""
+<section><h2>Tous les avis ouverts</h2>{bloc_liste(av, "../")}</section>"""
         page(dslug[c], f"Appels d'offres {nom} ({c}) : {n_avis(len(av))} | {SITE}",
              f"Marchés publics ouverts {prep} au {fr(TODAY)} : objet, acheteur, date limite et lien vers l'avis officiel.", corps,
              index=bool(av), fil=[("Accueil", "")])
@@ -330,11 +494,15 @@ def main():
             m = metiers[s]
             corps = f"""<h1>Appels d'offres {E(m.lower())} {prep} ({c})</h1>
 <p class="chapo"><span class="compte">{n_avis(len(cv))}</span> au {fr(TODAY)}. Voir aussi <a href="../../metier/{s}/">{E(m.lower())} dans toute la région</a>.</p>
-<section>{bloc_liste(cv)}</section>
+<section>{bloc_liste(cv, "../../")}</section>
+{bloc_classement(c, s, m, prep)}
 {formulaire(c, s, m, prep)}"""
             page(f"{dslug[c]}/{s}", f"Appels d'offres {m.lower()} {nom} ({c}) : {n_avis(len(cv))} | {SITE}",
                  f"Marchés publics « {m} » ouverts {prep} au {fr(TODAY)}, classés par date limite.", corps,
-                 index=bool(cv), fil=[("Accueil", ""), (nom, f"{dslug[c]}/")])
+                 index=bool(cv) or bool(RES_COMBO.get((c, s))), fil=[("Accueil", ""), (nom, f"{dslug[c]}/")])
+
+    for a in ouverts:
+        page_avis(a, metiers, dslug)
 
     # métiers (région)
     for s in tri_met:
@@ -343,14 +511,14 @@ def main():
         corps = f"""<h1>Appels d'offres {E(m.lower())} en {REGION}</h1>
 <p class="chapo"><span class="compte">{n_avis(len(av))}</span> au {fr(TODAY)}, classés par date limite de remise des offres.</p>
 {f'<section><h2>Par département</h2>{liens(deps)}</section>' if deps else ''}
-<section>{bloc_liste(av)}</section>"""
+<section>{bloc_liste(av, "../../")}</section>"""
         page(f"metier/{s}", f"Appels d'offres {m.lower()} en {REGION} : {n_avis(len(av))} | {SITE}",
              f"Marchés publics « {m} » ouverts en {REGION} au {fr(TODAY)}, classés par date limite.", corps,
              index=bool(av), fil=[("Accueil", "")])
 
     page("a-propos", f"À propos | {SITE}", f"D'où viennent les données de {SITE} et qui édite le site.",
          f"""<h1>À propos de {SITE}</h1>
-<section><h2>Les données</h2><p class="chapo">Les avis affichés proviennent des données ouvertes du Bulletin officiel des annonces des marchés publics (BOAMP), diffusées par la Direction de l'information légale et administrative (DILA). Ils sont récupérés une fois par jour, puis triés par département et par mot-clé du BOAMP. Le site ne modifie pas leur contenu. Un avis peut avoir été rectifié ou annulé depuis la dernière mise à jour : vérifiez toujours l'avis officiel sur boamp.fr avant de répondre. Tous les marchés publics ne sont pas publiés au BOAMP.</p></section>
+<section><h2>Les données</h2><p class="chapo">Les avis et les résultats de marché affichés proviennent des données ouvertes du Bulletin officiel des annonces des marchés publics (BOAMP), diffusées par la Direction de l'information légale et administrative (DILA). Ils sont récupérés une fois par jour, puis triés par département et par mot-clé du BOAMP. Le site ne modifie pas leur contenu : les montants, critères, lots, titulaires et nombres d'offres sont repris tels que l'acheteur les a publiés, et restent absents quand l'avis ne les donne pas. Les marchés d'un même acheteur sont rapprochés par son numéro SIRET ou, à défaut, par son nom exact, si bien que l'historique peut être incomplet. Un avis peut avoir été rectifié ou annulé depuis la dernière mise à jour : vérifiez toujours l'avis officiel sur boamp.fr avant de répondre. Tous les marchés publics ne sont pas publiés au BOAMP.</p></section>
 <section><h2>Mentions légales</h2><p class="chapo">Site édité à titre personnel, sans publicité. {MENTION_ALERTES if ALERTES else "Aucune donnée personnelle n'est collectée."} Hébergement : GitHub Pages, GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p></section>""",
          fil=[("Accueil", "")])
 
@@ -367,7 +535,7 @@ def main():
         + "".join(f"<url><loc>{E(u)}</loc><lastmod>{TODAY.isoformat()}</lastmod></url>\n" for u in SITEMAP) + "</urlset>\n", encoding="utf-8")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n")
     Path("data").mkdir(exist_ok=True)
-    Path("data/etat.json").write_text(json.dumps({"date": TODAY.isoformat(), "recus": len(brut), "retenus": len(tous), "ouverts": len(ouverts), "pages_indexables": len(SITEMAP)}, indent=1) + "\n")
+    Path("data/etat.json").write_text(json.dumps({"date": TODAY.isoformat(), "recus": len(brut), "retenus": len(tous), "ouverts": len(ouverts), "resultats": len(resultats), "avec_historique": len(HIST), "pages_indexables": len(SITEMAP)}, indent=1) + "\n")
     print(f"[site] {len(SITEMAP)} pages indexables écrites dans {OUT}/")
 
 

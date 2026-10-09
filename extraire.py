@@ -1,6 +1,6 @@
 """Lot Ouvert : extrait les informations utiles du contenu détaillé des avis BOAMP (champ « donnees »).
 Trois formats coexistent (eForms européen, FNSimple, MAPA). Rien n'est deviné : une information absente reste absente."""
-import json, re
+import html, json, re
 
 
 def charger(d):
@@ -87,7 +87,7 @@ def details_marche(donnees):
         uris = [txt(u) for ref in trouver(e, "cac:CallForTendersDocumentReference") for u in trouver(ref, "cbc:URI")]
         dce = next((u for u in uris if u.startswith("http")), "")
         if dce:
-            r["dossier"] = dce
+            r["dossier"] = html.unescape(dce)
         lieu = next((txt(x.get("cbc:Description")) for x in trouver(e, "cac:RealizedLocation") if isinstance(x, dict) and txt(x.get("cbc:Description"))), "")
         if lieu:
             r["lieu"] = lieu[:200]
@@ -96,15 +96,19 @@ def details_marche(donnees):
             if v and u in ("MONTH", "YEAR", "DAY"):
                 r["duree"] = f"{int(v)} {'mois' if u == 'MONTH' else ('an' + ('s' if v > 1 else '')) if u == 'YEAR' else ('jour' + ('s' if v > 1 else ''))}"
                 break
-        c = _criteres_eforms(e)
-        if c:
-            r["criteres"] = c
+        for bloc in (lots or [e]):
+            c = _criteres_eforms(bloc)
+            if c:
+                r["criteres"] = c
+                if len(lots) > 1:
+                    r["criteres_premier_lot"] = True
+                break
     else:
         brut = json.dumps(d, ensure_ascii=False)
         for cle in ("urlProfilAch", "urlDocConsul", "urlProfilAcheteur", "adresseProfilAcheteur"):
             u = next((txt(x) for x in trouver(d, cle) if txt(x).startswith("http")), "")
             if u:
-                r["dossier"] = u
+                r["dossier"] = html.unescape(u)
                 break
         for cle, nom in (("capaciteTech", "references"), ("lieuExecution", "lieu")):
             v = next((txt(x) for x in trouver(d, cle) if isinstance(x, (str, dict)) and txt(x)), "")
@@ -115,16 +119,42 @@ def details_marche(donnees):
         c = _criteres_texte(bloc.group(1) if bloc else "")
         if c:
             r["criteres"] = c
+        for v in trouver(d, "valeurEstimee"):
+            m = nombre(txt(v.get("valeur"))) if isinstance(v, dict) else nombre(txt(v))
+            if m and m >= 1000:
+                r["montant"] = m
+        mois = next((nombre(txt(v)) for v in trouver(d, "dureeMois") if nombre(txt(v))), None)
+        if mois:
+            r["duree"] = f"{int(mois)} mois"
+        vis = next((txt(v) for v in trouver(d, "visiteDetail") if txt(v)), "")
+        if vis:
+            r["visite"] = vis[:300]
         lots = [l for x in trouver(d, "lot") for l in (x if isinstance(x, list) else [x]) if isinstance(l, dict)]
         noms = [txt(l.get("intitule")) or txt(l.get("description")) for l in lots]
         noms = [n for n in noms if n]
         if len(noms) > 1:
             r["lots"] = noms[:40]
-        if re.search(r"visite[^.]{0,60}obligatoire", brut, flags=re.I):
-            r["visite"] = True
     if not r.get("visite") and re.search(r"visite[^.]{0,60}obligatoire", json.dumps(d, ensure_ascii=False)[:200000], flags=re.I):
         r["visite"] = True
     return r
+
+
+def siret_acheteur(donnees):
+    """Numéro SIRET de l'acheteur quand l'avis le donne : sert à rapprocher les avis d'un même acheteur malgré les variantes de nom."""
+    d = charger(donnees)
+    if "EFORMS" in d:
+        e = d["EFORMS"]
+        ids = {txt(i) for p in trouver(e, "cac:ContractingParty") for i in trouver(p, "cbc:ID")}
+        for o in trouver(e, "efac:Company"):
+            if isinstance(o, dict) and ids & {txt(i) for i in trouver(o.get("cac:PartyIdentification"), "cbc:ID")}:
+                s = re.sub(r"\D", "", " ".join(txt(i) for i in trouver(o.get("cac:PartyLegalEntity"), "cbc:CompanyID")))
+                if len(s) == 14:
+                    return s
+    for v in trouver(d, "codeIdentificationNational"):
+        s = re.sub(r"\D", "", txt(v))
+        if len(s) == 14:
+            return s
+    return ""
 
 
 def details_attribution(donnees):
@@ -145,6 +175,12 @@ def details_attribution(donnees):
         if m and m >= 1000:
             r["montant"] = m
     else:
+        libre = next((txt(x) for x in trouver(d, "attributionMarche") if isinstance(x, (str, dict)) and len(txt(x)) > 25), "")
+        if libre:
+            r["texte"] = html.unescape(libre)[:420]
+        noms = [txt(x) for x in trouver(d, "PersonneMorale") if txt(x)]
+        if noms:
+            r["titulaires"] = noms
         for cle in ("nbOffresRecues", "nbOffreRecu", "nombreOffres", "NB_OFFRE_RECU", "nbOffres"):
             vals = [int(v) for v in (nombre(txt(x)) for x in trouver(d, cle)) if v and v < 500]
             if vals:

@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths-ignore: ["data/**", "diag.py", ".github/workflows/diag.yml"]
+    paths-ignore: ["data/**"]
 permissions:
   contents: write
   pages: write
