@@ -1,0 +1,31 @@
+name: Alertes e-mail
+on:
+  schedule:
+    - cron: "7 * * * *"     # confirmations d'inscription, toutes les heures
+    - cron: "43 5 * * *"    # nouveaux avis, chaque matin (au plus un e-mail par semaine et par inscrit)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: confirmations ou hebdo
+        default: confirmations
+permissions:
+  contents: read
+concurrency:
+  group: alertes
+  cancel-in-progress: false
+jobs:
+  alertes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Envoyer
+        env:
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          EXPEDITEUR_EMAIL: ${{ secrets.EXPEDITEUR_EMAIL }}
+        run: python alertes.py ${{ github.event.inputs.mode || (github.event.schedule == '43 5 * * *' && 'hebdo') || 'confirmations' }}

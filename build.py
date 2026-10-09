@@ -17,6 +17,11 @@ DEPS = {  # code: (nom, préposition + nom)
     "71": ("Saône-et-Loire", "en Saône-et-Loire"), "89": ("Yonne", "dans l'Yonne"),
     "90": ("Territoire de Belfort", "dans le Territoire de Belfort"),
 }
+try:
+    CONFIG = json.load(open("config.json", encoding="utf-8"))
+except (OSError, ValueError):
+    CONFIG = {}
+ALERTES = bool(CONFIG.get("supabase_url") and CONFIG.get("supabase_anon_key"))
 MOIS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()
 E = html.escape
 
@@ -145,6 +150,7 @@ def page(chemin, titre, desc, corps, index=True, fil=()):
 <main><nav class="fil">{crumbs}</nav>
 {corps}
 </main>
+{f'<script src="{rel}alerte.js" defer></script>' if ALERTES else ''}
 <footer><p>Données : Bulletin officiel des annonces des marchés publics (BOAMP), données ouvertes de la DILA. Mise à jour du {fr(TODAY)}. Seul l'avis publié sur boamp.fr fait foi.</p>
 <p><a href="{rel}a-propos/">À propos et mentions légales</a></p></footer></body></html>"""
     d = OUT / chemin
@@ -178,6 +184,18 @@ def liens(items):
     return '<ul class="liens">' + "".join(f'<li><a href="{u}">{E(t)}</a> <span>{n}</span></li>' for t, u, n in items) + "</ul>"
 
 
+def formulaire(dep, metier_slug, metier, prep):
+    if not ALERTES:
+        return ""
+    return f"""<form class="alerte" data-dep="{dep}" data-metier="{metier_slug}" novalidate>
+<h2>Recevoir ces annonces par e-mail</h2>
+<p>Un e-mail par semaine au plus, seulement quand un nouvel avis « {E(metier)} » paraît {prep}. Gratuit.</p>
+<div class="champ"><label for="al-email">Votre adresse e-mail</label><input id="al-email" name="email" type="email" autocomplete="email" required>
+<input name="site" type="text" tabindex="-1" autocomplete="off" class="pot" aria-hidden="true"><button type="submit">Créer l'alerte</button></div>
+<p class="etat" role="status"></p>
+<p class="petit">Votre adresse sert uniquement à envoyer cette alerte. Chaque e-mail contient un lien de désinscription.</p></form>"""
+
+
 def n_avis(n):
     return f"{n} avis ouvert{'s' if n > 1 else ''}"
 
@@ -201,7 +219,48 @@ section{display:flex;flex-direction:column;gap:.9rem}
 .liens li{display:flex;justify-content:space-between;gap:.6rem;border-bottom:1px solid var(--line);padding-block:.3rem}.liens span{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--muted);font-size:.85rem}
 .vide{background:var(--surface);border:1px dashed var(--line);padding:1rem;color:var(--muted);margin:0}
 footer{border-top:1px solid var(--line);padding-block:1.2rem 2.5rem;font-size:.82rem;color:var(--muted)}footer p{margin:.3rem 0}
+.alerte{border:2px solid var(--ink);background:var(--surface);padding:1.2rem;display:flex;flex-direction:column;gap:.6rem}.alerte p{margin:0}
+.champ{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end}.champ label{flex-basis:100%;font-weight:600;font-size:.9rem}
+.champ input[type=email]{flex:1 1 14rem;min-width:0;font:inherit;padding:.6rem .7rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:3px}
+.alerte button,.bouton{font:600 1rem inherit;font-family:inherit;background:var(--accent);color:var(--bg);border:0;border-radius:3px;padding:.65rem 1.1rem;cursor:pointer}
+.pot{position:absolute;left:-999rem}.etat{font-weight:600;min-height:1.4em}.petit{font-size:.8rem;color:var(--muted)}
 @media (max-width:34rem){.avis{grid-template-columns:minmax(0,1fr)}.limite{flex-direction:row;align-items:baseline;gap:.7rem}}"""
+
+
+MENTION_ALERTES = ("Si vous créez une alerte, votre adresse e-mail est enregistrée avec le métier et le département choisis, dans le seul but de vous envoyer cette alerte. "
+    "Elle est stockée chez Supabase et les e-mails partent par Brevo. Elle est supprimée dès que vous vous désinscrivez, et au bout de 7 jours si vous ne confirmez pas l'inscription."
+    + (f" Pour toute demande concernant vos données : {E(CONFIG['contact_email'])}." if CONFIG.get("contact_email") else ""))
+
+JS = r"""(function(){
+var URL="__URL__",KEY="__KEY__",H={"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json"};
+document.querySelectorAll("form.alerte").forEach(function(f){
+  f.addEventListener("submit",function(e){
+    e.preventDefault();
+    var etat=f.querySelector(".etat"),email=f.email.value.trim().toLowerCase();
+    if(f.site.value){return;}
+    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(email)){etat.textContent="Cette adresse e-mail n'est pas valide.";f.email.focus();return;}
+    etat.textContent="Enregistrement…";
+    fetch(URL+"/rest/v1/lo_abonnes",{method:"POST",headers:Object.assign({"Prefer":"return=minimal"},H),
+      body:JSON.stringify({email:email,dep:f.dataset.dep,metier:f.dataset.metier})})
+    .then(function(r){
+      if(r.status===201){etat.textContent="C'est noté. Un e-mail de confirmation vous sera envoyé dans l'heure : cliquez sur son lien pour activer l'alerte.";f.email.value="";}
+      else if(r.status===409){etat.textContent="Cette adresse est déjà inscrite à cette alerte.";}
+      else{etat.textContent="L'inscription n'a pas fonctionné. Réessayez dans quelques minutes.";}
+    }).catch(function(){etat.textContent="Connexion impossible. Vérifiez votre réseau et réessayez.";});
+  });
+});
+var a=document.querySelector("[data-action]");
+if(a){
+  var t=new URLSearchParams(location.search).get("t")||"",ok=/^[0-9a-f-]{36}$/i.test(t),conf=a.dataset.action==="confirmer";
+  if(!ok){a.textContent="Ce lien est incomplet. Ouvrez-le directement depuis l'e-mail reçu.";return;}
+  fetch(URL+"/rest/v1/rpc/"+(conf?"lo_confirmer":"lo_desinscrire"),{method:"POST",headers:H,body:JSON.stringify({t:t})})
+  .then(function(r){return r.ok?r.json():Promise.reject();})
+  .then(function(v){
+    if(conf){a.textContent=v?"Votre alerte est active. Vous recevrez un e-mail quand un nouvel avis paraîtra.":"Ce lien n'est plus valable : l'inscription a expiré ou a été supprimée.";}
+    else{a.textContent=v?"Vous êtes désinscrit. Votre adresse a été supprimée.":"Cette alerte était déjà supprimée.";}
+  }).catch(function(){a.textContent="L'opération n'a pas abouti. Réessayez dans quelques minutes.";});
+}
+})();"""
 
 
 def main():
@@ -271,7 +330,8 @@ def main():
             m = metiers[s]
             corps = f"""<h1>Appels d'offres {E(m.lower())} {prep} ({c})</h1>
 <p class="chapo"><span class="compte">{n_avis(len(cv))}</span> au {fr(TODAY)}. Voir aussi <a href="../../metier/{s}/">{E(m.lower())} dans toute la région</a>.</p>
-<section>{bloc_liste(cv)}</section>"""
+<section>{bloc_liste(cv)}</section>
+{formulaire(c, s, m, prep)}"""
             page(f"{dslug[c]}/{s}", f"Appels d'offres {m.lower()} {nom} ({c}) : {n_avis(len(cv))} | {SITE}",
                  f"Marchés publics « {m} » ouverts {prep} au {fr(TODAY)}, classés par date limite.", corps,
                  index=bool(cv), fil=[("Accueil", ""), (nom, f"{dslug[c]}/")])
@@ -291,8 +351,16 @@ def main():
     page("a-propos", f"À propos | {SITE}", f"D'où viennent les données de {SITE} et qui édite le site.",
          f"""<h1>À propos de {SITE}</h1>
 <section><h2>Les données</h2><p class="chapo">Les avis affichés proviennent des données ouvertes du Bulletin officiel des annonces des marchés publics (BOAMP), diffusées par la Direction de l'information légale et administrative (DILA). Ils sont récupérés une fois par jour, puis triés par département et par mot-clé du BOAMP. Le site ne modifie pas leur contenu. Un avis peut avoir été rectifié ou annulé depuis la dernière mise à jour : vérifiez toujours l'avis officiel sur boamp.fr avant de répondre. Tous les marchés publics ne sont pas publiés au BOAMP.</p></section>
-<section><h2>Mentions légales</h2><p class="chapo">Site édité à titre personnel, sans publicité ni collecte de données personnelles. Hébergement : GitHub Pages, GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p></section>""",
+<section><h2>Mentions légales</h2><p class="chapo">Site édité à titre personnel, sans publicité. {MENTION_ALERTES if ALERTES else "Aucune donnée personnelle n'est collectée."} Hébergement : GitHub Pages, GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p></section>""",
          fil=[("Accueil", "")])
+
+    if ALERTES:
+        for chemin, titre, action, attente in (
+            ("alerte/confirmer", "Confirmation de votre alerte", "confirmer", "Confirmation en cours…"),
+            ("alerte/desinscription", "Désinscription", "desinscrire", "Désinscription en cours…")):
+            page(chemin, f"{titre} | {SITE}", titre,
+                 f'<h1>{titre}</h1><p class="chapo etat" data-action="{action}" role="status">{attente}</p><p><a href="../../">Retour aux marchés ouverts</a></p>', index=False)
+        (OUT / "alerte.js").write_text(JS.replace("__URL__", CONFIG["supabase_url"].rstrip("/")).replace("__KEY__", CONFIG["supabase_anon_key"]), encoding="utf-8")
 
     (OUT / "404.html").write_text(f'<!doctype html><html lang="fr"><meta charset="utf-8"><title>Page introuvable | {SITE}</title><meta name="robots" content="noindex"><link rel="stylesheet" href="{BASE}/style.css"><main><h1>Page introuvable</h1><p><a href="{BASE}/">Retour aux marchés ouverts</a></p></main></html>', encoding="utf-8")
     (OUT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
