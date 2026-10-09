@@ -186,7 +186,7 @@ def page(chemin, titre, desc, corps, index=True, fil=(), large=False):
 <link rel="stylesheet" href="{rel}style.css"></head><body>
 <a class="saut" href="#contenu">Aller au contenu</a>
 <header class="tete"><div class="cadre"><a class="marque" href="{rel or './'}"><span class="pastille" aria-hidden="true"></span>{SITE}</a>
-<nav aria-label="Navigation principale"><a href="{rel}#departements">Départements</a><a href="{rel}metiers/">Métiers</a><a href="{rel}a-propos/">À propos</a></nav></div></header>
+<nav aria-label="Navigation principale"><a href="{rel}#departements">Départements</a><a href="{rel}metiers/">Métiers</a><a href="{rel}a-propos/">À propos</a>{f'<a class="inscrire" href="{rel}inscription/">Alertes gratuites</a>' if ALERTES else ''}</nav></div></header>
 <main id="contenu" class="cadre{' large' if large else ''}">{f'<nav class="fil" aria-label="Fil d’Ariane">{crumbs}</nav>' if crumbs else ''}
 {corps}
 </main>
@@ -354,6 +354,7 @@ def page_avis(a, metiers, dslug):
 <aside class="f-cote">{tuile(a)}
 <p class="f-date">À remettre avant le <b>{fr(a['limite'])}</b></p>
 {f'<a class="bouton" href="{E(d["dossier"])}" rel="nofollow noopener">Télécharger le dossier</a><p class="note">Les documents à lire et à remplir pour répondre, sur la plateforme de l’acheteur.</p>' if d.get('dossier') else ''}
+{f'<a class="bouton second" href="../../inscription/?m={slug(a["metiers"][0])}&amp;d={a["deps"][0]}">Être prévenu des prochaines annonces</a><p class="note">Alerte gratuite par e-mail pour ce métier et ce département.</p>' if ALERTES and a["metiers"] and a["deps"] else ''}
 <a class="bouton second" href="{E(a['url'])}" rel="nofollow noopener">Lire l'avis officiel</a><p class="note">Avis n° {E(a['id'])} sur boamp.fr{f", publié le {fr(a['paru'])}" if a['paru'] else ''}.</p></aside>
 <div class="f-corps">
 <section class="bloc"><h2>L'essentiel de l'annonce</h2><dl class="essentiel">{essentiel}</dl></section>
@@ -363,6 +364,12 @@ def page_avis(a, metiers, dslug):
 </div></div>"""
     fil = [("Accueil", "")] + ([(DEPS[a["deps"][0]][0], f"{dslug[a['deps'][0]]}/")] if a["deps"] else [])
     page(f"avis/{a['id']}", f"{court(a['objet'])} | {SITE}", court(f"{a['acheteur']} : à remettre avant le {fr(a['limite'])}. L'essentiel de l'annonce, le dossier à télécharger et les marchés déjà attribués par cet acheteur.", 158), corps, fil=fil, large=True)
+
+
+def BANDEAU(rel, m="", d=""):
+    q = "&".join(x for x in (f"m={m}" if m else "", f"d={d}" if d else "") if x)
+    return f"""<aside class="bandeau-alerte"><div><b>Recevez les nouvelles annonces de votre métier par e-mail</b><span>Gratuit, un e-mail par semaine au plus, désinscription en un clic.</span></div>
+<a class="bouton jaune" href="{rel}inscription/{'?' + q if q else ''}">S'inscrire gratuitement</a></aside>"""
 
 
 def formulaire(dep, metier_slug, metier, prep):
@@ -474,6 +481,16 @@ th,td{text-align:left;padding:.55rem .9rem;border-top:1px solid var(--trait);ver
 .rubriques{display:flex;flex-wrap:wrap;gap:.5rem}.rubriques a{background:var(--carte);border:1px solid var(--trait);padding:.4rem .8rem;border-radius:99px;text-decoration:none;font-weight:500}
 
 /* alertes */
+.tete nav .inscrire{background:var(--jaune);color:var(--sur-jaune);padding:.35rem .8rem;border-radius:3px;font-weight:600}
+.bandeau-alerte{display:flex;gap:1rem 2rem;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--encre);color:var(--fond);padding:1.1rem 1.3rem}
+.bandeau-alerte div{display:flex;flex-direction:column;gap:.15rem;min-width:0;flex:1 1 18rem}.bandeau-alerte b{font:700 1.35rem/1.15 var(--titre)}.bandeau-alerte span{font-size:.95rem;opacity:.85}
+.bouton.jaune{background:var(--jaune);border-color:var(--jaune);color:var(--sur-jaune)}
+.inscription{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,24rem);gap:2.5rem;align-items:start}.inscription>div{display:flex;flex-direction:column;gap:1rem}
+.promesses{margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:.3rem}
+.alerte.libre{display:flex;flex-direction:column;gap:.45rem}.alerte.libre label{font-weight:600;font-size:.95rem;margin-top:.5rem}
+.alerte.libre select,.alerte.libre input[type=email]{font:inherit;padding:.65rem .75rem;border:1px solid var(--trait);background:var(--fond);color:var(--encre);border-radius:3px;width:100%}
+.alerte.libre .bouton{margin-top:.8rem}
+@media (max-width:56rem){.inscription{grid-template-columns:minmax(0,1fr)}}
 .alerte{border:2px solid var(--encre);background:var(--carte);padding:1.3rem}
 .champ{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end}.champ label{flex-basis:100%;font-weight:600;font-size:.95rem}
 .champ input[type=email]{flex:1 1 14rem;min-width:0;font:inherit;padding:.65rem .75rem;border:1px solid var(--trait);background:var(--fond);color:var(--encre);border-radius:3px}
@@ -544,11 +561,14 @@ document.querySelectorAll("form.alerte").forEach(function(f){
   f.addEventListener("submit",function(e){
     e.preventDefault();
     var etat=f.querySelector(".etat"),email=f.email.value.trim().toLowerCase();
+    var dep=f.dataset.dep||(f.dep?f.dep.value:""),metier=f.dataset.metier||(f.metier?f.metier.value:"");
+    if(!metier){etat.textContent="Choisissez votre métier dans la liste.";f.metier.focus();return;}
+    if(!dep){etat.textContent="Choisissez votre département dans la liste.";f.dep.focus();return;}
     if(f.site.value){return;}
     if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(email)){etat.textContent="Cette adresse e-mail n'est pas valide.";f.email.focus();return;}
     etat.textContent="Enregistrement…";
     fetch(URL+"/rest/v1/lo_abonnes",{method:"POST",headers:Object.assign({"Prefer":"return=minimal"},H),
-      body:JSON.stringify({email:email,dep:f.dataset.dep,metier:f.dataset.metier})})
+      body:JSON.stringify({email:email,dep:dep,metier:metier})})
     .then(function(r){
       if(r.status===201){etat.textContent="C'est noté. Un e-mail de confirmation vous sera envoyé dans l'heure : cliquez sur son lien pour activer l'alerte.";f.email.value="";}
       else if(r.status===409){etat.textContent="Cette adresse est déjà inscrite à cette alerte.";}
@@ -556,6 +576,8 @@ document.querySelectorAll("form.alerte").forEach(function(f){
     }).catch(function(){etat.textContent="Connexion impossible. Vérifiez votre réseau et réessayez.";});
   });
 });
+var libre=document.querySelector("form.alerte.libre");
+if(libre){var qs=new URLSearchParams(location.search);["m","d"].forEach(function(k){var el=libre[k==="m"?"metier":"dep"],v=qs.get(k);if(v&&el.querySelector('option[value="'+v.replace(/[^a-zA-Z0-9-]/g,"")+'"]')){el.value=v;}});}
 var a=document.querySelector("[data-action]");
 if(a){
   var t=new URLSearchParams(location.search).get("t")||"",ok=/^[0-9a-f-]{36}$/i.test(t),conf=a.dataset.action==="confirmer";
@@ -657,6 +679,7 @@ def main():
 <label for="t-dep">Votre département<select id="t-dep"><option value="">Toute la région</option>{options}</select></label>
 <ul class="propos" aria-live="polite"></ul>
 <noscript><p>Sans JavaScript, choisissez un département ou un métier dans les listes plus bas.</p></noscript></form></div>
+{BANDEAU("") if ALERTES else ''}
 <ol class="etapes"><li><b>Choisissez votre métier</b><span>Vous voyez seulement les annonces qui vous concernent, de la plus urgente à la plus lointaine.</span></li>
 <li><b>Lisez la fiche</b><span>Montant, lots, critères de notation, et qui a gagné les marchés précédents de cet acheteur.</span></li>
 <li><b>Téléchargez le dossier</b><span>Un lien direct vers les documents à remplir, sur la plateforme de l'acheteur.</span></li></ol>
@@ -681,7 +704,8 @@ def main():
         corps = f"""<h1>Appels d'offres {prep}</h1>
 <p class="intro">{n_avis(len(av))} au {fr(TODAY)}, de la plus urgente à la plus lointaine.</p>
 <section class="bloc"><h2>Affiner par métier</h2>{liens([(metiers[s], f"{s}/", len(par_combo[(c, s)])) for s in mets if par_combo[(c, s)]]) if av else ''}</section>
-<section class="bloc"><h2>Toutes les annonces {prep}</h2>{bloc_liste(av, "../")}</section>"""
+<section class="bloc"><h2>Toutes les annonces {prep}</h2>{bloc_liste(av, "../")}</section>
+{BANDEAU("../", d=c) if ALERTES else ''}"""
         page(dslug[c], f"Appels d'offres {nom} ({c}) : {n_avis(len(av))} | {SITE}",
              f"Marchés publics ouverts {prep} au {fr(TODAY)} : date limite, dossier à télécharger et entreprises déjà retenues par chaque acheteur.", corps,
              index=bool(av), fil=[("Accueil", "")])
@@ -707,7 +731,8 @@ def main():
         corps = f"""<h1>Appels d'offres « {E(m)} » en {REGION}</h1>
 <p class="intro">{n_avis(len(av))} au {fr(TODAY)}, de la plus urgente à la plus lointaine.</p>
 {f'<section class="bloc"><h2>Par département</h2>{liens(deps, "deps")}</section>' if deps else ''}
-<section class="bloc">{bloc_liste(av, "../../")}</section>"""
+<section class="bloc">{bloc_liste(av, "../../")}</section>
+{BANDEAU("../../", m=s) if ALERTES else ''}"""
         page(f"metier/{s}", f"Appels d'offres {m.lower()} en {REGION} : {n_avis(len(av))} | {SITE}",
              f"Marchés publics « {m} » ouverts en {REGION} au {fr(TODAY)}, classés par date limite.", corps,
              index=bool(av), fil=[("Accueil", ""), ("Métiers", "metiers/")])
@@ -721,6 +746,20 @@ def main():
          fil=[("Accueil", "")])
 
     if ALERTES:
+        opt_m = "".join(f'<option value="{s_}">{E(metiers[s_])}</option>' for s_ in sorted(metiers, key=lambda x: slug(metiers[x])))
+        opt_d = "".join(f'<option value="{c}">{E(DEPS[c][0])} ({c})</option>' for c in DEPS)
+        page("inscription", f"Alertes gratuites par e-mail | {SITE}", f"Recevez par e-mail les nouvelles annonces de marchés publics de votre métier en {REGION}. Gratuit.",
+             f"""<div class="inscription"><div><h1>Recevez les annonces de votre métier par e-mail</h1>
+<p class="intro">Choisissez votre métier et votre département. Vous recevez un e-mail quand une nouvelle annonce paraît, au plus une fois par semaine. C'est gratuit et vous pouvez vous désinscrire en un clic.</p>
+<ul class="promesses"><li>Aucun mot de passe à retenir</li><li>Aucune publicité dans les e-mails</li><li>Votre adresse sert uniquement à cette alerte</li></ul></div>
+<form class="alerte libre" novalidate>
+<label for="al-metier">Votre métier ou votre activité</label><select id="al-metier" name="metier" required><option value="">Choisir dans la liste</option>{opt_m}</select>
+<label for="al-dep">Votre département</label><select id="al-dep" name="dep" required><option value="">Choisir dans la liste</option>{opt_d}</select>
+<label for="al-email">Votre adresse e-mail</label><input id="al-email" name="email" type="email" autocomplete="email" required>
+<input name="site" type="text" tabindex="-1" autocomplete="off" class="pot" aria-hidden="true">
+<button type="submit" class="bouton">Créer mon alerte gratuite</button>
+<p class="etat" role="status"></p>
+<p class="note">Pour suivre plusieurs métiers ou plusieurs départements, créez une alerte pour chacun.</p></form></div>""", fil=[("Accueil", "")])
         for chemin, titre, action, attente in (
             ("alerte/confirmer", "Confirmation de votre alerte", "confirmer", "Confirmation en cours…"),
             ("alerte/desinscription", "Désinscription", "desinscrire", "Désinscription en cours…")):
