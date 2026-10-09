@@ -1,0 +1,561 @@
+[
+ {
+  "idweb": "26-90001",
+  "objet": "Travaux de désamiantage et de déconstruction de 8 bâtiments de 52 logements à Beaune",
+  "nomacheteur": "ORVITIS",
+  "dateparution": "2026-10-07",
+  "datelimitereponse": "2026-10-19T12:00:00+00:00",
+  "code_departement": [
+   "21"
+  ],
+  "descripteur_libelle": [
+   "Désamiantage",
+   "Démolition"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90001"
+ },
+ {
+  "idweb": "26-90002",
+  "objet": "Entretien de 9 postes de relevage <test & échappement>",
+  "nomacheteur": "IDELIANS",
+  "dateparution": "2026-10-06",
+  "datelimitereponse": "2026-10-13T12:00:00+00:00",
+  "code_departement": [
+   "21",
+   "52"
+  ],
+  "descripteur_libelle": [
+   "Assainissement"
+  ],
+  "type_marche": [
+   "SERVICES"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90002"
+ },
+ {
+  "idweb": "26-90003",
+  "objet": "Réfection des peintures de l'école Jean-Jaurès",
+  "nomacheteur": "Commune de Talant",
+  "dateparution": "2026-10-05",
+  "datelimitereponse": "2026-10-31T12:00:00+00:00",
+  "code_departement": [
+   "21"
+  ],
+  "descripteur_libelle": [
+   "Peinture (travaux)"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90003"
+ },
+ {
+  "idweb": "26-90004",
+  "objet": "Nettoyage des locaux du collège",
+  "nomacheteur": "Département du Doubs",
+  "dateparution": "2026-10-04",
+  "datelimitereponse": "2026-10-09T12:00:00+00:00",
+  "code_departement": [
+   "25"
+  ],
+  "descripteur_libelle": "Nettoyage de locaux",
+  "type_marche": [
+   "SERVICES"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90004"
+ },
+ {
+  "idweb": "26-90005",
+  "objet": "Marché attribué",
+  "nomacheteur": "Ville de Dijon",
+  "dateparution": "2026-10-03",
+  "datelimitereponse": "2026-11-08T12:00:00+00:00",
+  "code_departement": [
+   "21"
+  ],
+  "descripteur_libelle": [
+   "Peinture (travaux)"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "ATTRIBUTION",
+  "nature_libelle": "Résultat de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90005"
+ },
+ {
+  "idweb": "26-90006",
+  "objet": "Avis clos peinture",
+  "nomacheteur": "Ville de Sens",
+  "dateparution": "2026-10-02",
+  "datelimitereponse": "2026-10-04T12:00:00+00:00",
+  "code_departement": [
+   "89"
+  ],
+  "descripteur_libelle": [
+   "Peinture (travaux)"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90006"
+ },
+ {
+  "idweb": "26-90007",
+  "objet": "Hors région",
+  "nomacheteur": "Ville de Lyon",
+  "dateparution": "2026-10-01",
+  "datelimitereponse": "2026-10-18T12:00:00+00:00",
+  "code_departement": [
+   "69"
+  ],
+  "descripteur_libelle": [
+   "Voirie"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90007"
+ },
+ {
+  "idweb": "26-90008",
+  "objet": "Sans date",
+  "nomacheteur": "Ville de Dole",
+  "dateparution": "2026-09-30",
+  "datelimitereponse": null,
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90008"
+ },
+ {
+  "idweb": "26-90020",
+  "objet": "Travaux de voirie programme 0",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-06",
+  "datelimitereponse": "2026-10-14T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90020"
+ },
+ {
+  "idweb": "26-90021",
+  "objet": "Travaux de voirie programme 1",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-05",
+  "datelimitereponse": "2026-10-15T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90021"
+ },
+ {
+  "idweb": "26-90022",
+  "objet": "Travaux de voirie programme 2",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-04",
+  "datelimitereponse": "2026-10-16T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90022"
+ },
+ {
+  "idweb": "26-90023",
+  "objet": "Travaux de voirie programme 3",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-03",
+  "datelimitereponse": "2026-10-17T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90023"
+ },
+ {
+  "idweb": "26-90024",
+  "objet": "Travaux de voirie programme 4",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-02",
+  "datelimitereponse": "2026-10-18T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90024"
+ },
+ {
+  "idweb": "26-90025",
+  "objet": "Travaux de voirie programme 5",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-01",
+  "datelimitereponse": "2026-10-19T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90025"
+ },
+ {
+  "idweb": "26-90026",
+  "objet": "Travaux de voirie programme 6",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-09-30",
+  "datelimitereponse": "2026-10-20T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90026"
+ },
+ {
+  "idweb": "26-90027",
+  "objet": "Travaux de voirie programme 7",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-08",
+  "datelimitereponse": "2026-10-21T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90027"
+ },
+ {
+  "idweb": "26-90028",
+  "objet": "Travaux de voirie programme 8",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-07",
+  "datelimitereponse": "2026-10-22T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90028"
+ },
+ {
+  "idweb": "26-90029",
+  "objet": "Travaux de voirie programme 9",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-06",
+  "datelimitereponse": "2026-10-23T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90029"
+ },
+ {
+  "idweb": "26-90030",
+  "objet": "Travaux de voirie programme 10",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-05",
+  "datelimitereponse": "2026-10-24T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90030"
+ },
+ {
+  "idweb": "26-90031",
+  "objet": "Travaux de voirie programme 11",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-04",
+  "datelimitereponse": "2026-10-25T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90031"
+ },
+ {
+  "idweb": "26-90032",
+  "objet": "Travaux de voirie programme 12",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-03",
+  "datelimitereponse": "2026-10-26T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90032"
+ },
+ {
+  "idweb": "26-90033",
+  "objet": "Travaux de voirie programme 13",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-02",
+  "datelimitereponse": "2026-10-27T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90033"
+ },
+ {
+  "idweb": "26-90034",
+  "objet": "Travaux de voirie programme 14",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-01",
+  "datelimitereponse": "2026-10-28T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90034"
+ },
+ {
+  "idweb": "26-90035",
+  "objet": "Travaux de voirie programme 15",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-09-30",
+  "datelimitereponse": "2026-10-29T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90035"
+ },
+ {
+  "idweb": "26-90036",
+  "objet": "Travaux de voirie programme 16",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-08",
+  "datelimitereponse": "2026-10-30T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90036"
+ },
+ {
+  "idweb": "26-90037",
+  "objet": "Travaux de voirie programme 17",
+  "nomacheteur": "Communauté de communes du Jura",
+  "dateparution": "2026-10-07",
+  "datelimitereponse": "2026-10-31T12:00:00+00:00",
+  "code_departement": [
+   "39"
+  ],
+  "descripteur_libelle": [
+   "Voirie",
+   "Terrassement"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90037"
+ },
+ {
+  "idweb": "26-90001",
+  "objet": "Travaux de désamiantage et de déconstruction de 8 bâtiments de 52 logements à Beaune",
+  "nomacheteur": "ORVITIS",
+  "dateparution": "2026-10-07",
+  "datelimitereponse": "2026-10-19T12:00:00+00:00",
+  "code_departement": [
+   "21"
+  ],
+  "descripteur_libelle": [
+   "Désamiantage",
+   "Démolition"
+  ],
+  "type_marche": [
+   "TRAVAUX"
+  ],
+  "nature": "APPEL_OFFRE",
+  "nature_libelle": "Avis de marché",
+  "procedure_libelle": "Procédure adaptée",
+  "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-90001"
+ }
+]
