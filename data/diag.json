@@ -1,0 +1,475 @@
+{
+ "natures": {
+  "total_count": 4,
+  "results": [
+   {
+    "nature": "APPEL_OFFRE",
+    "nature_libelle": "Avis de marché",
+    "n": 301
+   },
+   {
+    "nature": "ATTRIBUTION",
+    "nature_libelle": "Résultat de marché",
+    "n": 93
+   },
+   {
+    "nature": "MODIFICATION",
+    "nature_libelle": "Modification",
+    "n": 1
+   },
+   {
+    "nature": "RECTIFICATIF",
+    "nature_libelle": "Rectificatif",
+    "n": 11
+   }
+  ]
+ },
+ "familles": {
+  "total_count": 5,
+  "results": [
+   {
+    "famille": "DIVERS",
+    "famille_libelle": "Divers",
+    "n": 1
+   },
+   {
+    "famille": "DSP",
+    "famille_libelle": "Délégation de service public",
+    "n": 2
+   },
+   {
+    "famille": "FNS",
+    "famille_libelle": "Marchés entre 90 k€ et seuils européens",
+    "n": 142
+   },
+   {
+    "famille": "JOUE",
+    "famille_libelle": "Marchés européens",
+    "n": 229
+   },
+   {
+    "famille": "MAPA",
+    "famille_libelle": "Marchés <90 k€ (MAPA)",
+    "n": 32
+   }
+  ]
+ },
+ "marche": [
+  {
+   "idweb": "26-97374",
+   "id": "26_97374",
+   "contractfolderid": "bfb7215f-a38e-46d3-bac3-c34506a416bd",
+   "objet": "Mission de maîtrise d’œuvre pour la réhausse du noyau et la réfection du parement amont du barrage réservoir de Grosbois 2",
+   "filename": "26-97374",
+   "famille": "JOUE",
+   "code_departement": "[\"21\", \"39\", \"71\", \"58\", \"89\", \"10\", \"52\", \"70\"]",
+   "code_departement_prestation": "null",
+   "famille_libelle": "Marchés européens",
+   "dateparution": "2026-10-09",
+   "datefindiffusion": "2026-11-18",
+   "datelimitereponse": "2026-11-18T17:00:00+00:00",
+   "nomacheteur": "Voies Navigables de France - DTCB",
+   "titulaire": "null",
+   "perimetre": "DIRECTIVE-24",
+   "type_procedure": "OUVERT",
+   "soustype_procedure": "null",
+   "procedure_libelle": "Procédure Ouverte",
+   "procedure_categorise": "OUVERT/",
+   "nature": "APPEL_OFFRE",
+   "sousnature": "STANDARD",
+   "nature_libelle": "Avis de marché",
+   "sousnature_libelle": "null",
+   "nature_categorise": "appeloffre/standard",
+   "nature_categorise_libelle": "Avis de marché/",
+   "criteres": "[\"environnementaux\"]",
+   "marche_public_simplifie": "null",
+   "marche_public_simplifie_label": "null",
+   "etat": "INITIAL",
+   "descripteur_code": "[\"197\"]",
+   "dc": "[\"197\"]",
+   "descripteur_libelle": "[\"Maîtrise d'oeuvre\"]",
+   "type_marche": "[\"SERVICES\"]",
+   "type_marche_facette": "[\"Services\"]",
+   "type_avis": "[\"5\", \"1\"]",
+   "annonce_lie": "null",
+   "annonces_anterieures": "null",
+   "source_schema": "3.2.5",
+   "gestion": "{\"REFERENCE\": {\"IDWEB\": \"26-97374\", \"TYPE_AVIS\": {\"FAMILLE\": {\"JOUE\": \"\"}, \"PERIMETRE\": {\"DIRECTIVE-24\": \"\"}, \"NATURE\": {\"APPEL_OFFRE\": {\"STANDARD\": \"\"}}, \"STATUT\": {\"INITIAL\": \"\"}}}, \"INDEXATION\": {\"SCHEMA\": \"3.2.5\", \"NOMORGANISME\": \"Voies Navigables de France - DTCB\", \"TYPE_PROCEDURE\": {\"OUVERT\": \"\"}, \"DATE_PUBLICATION\": \"2026-10-09\", \"DATE_LIMITE_REPONSE\": \"2026-11-18T17:00:00.000+02:00\", \"DATE_FIN_DIFFUSION\": \"2026-11-18\", \"DESCRIPTEURS\": {\"DESCRIPTEUR\": {\"CODE\": \"197\", \"LIBELLE\": \"Maîtrise d'oeuvre\"}}, \"NATURE_MARCHE\": {\"SERVICES\": \"\"}, \"CRITERES_SOCIAUX_ENV\": {\"ENVIRONNEMENTAUX\": \"\"}, \"DEP_PUBLICATION\": [\"21\", \"39\", \"71\", \"58\", \"89\", \"10\", \"52\", \"70\"], \"RESUME_OBJET\": \"Mission de maîtrise d’œuvre pour la réhausse du noyau et la réfection du parement amont du barrage réservoir de Grosbois 2 \"}}",
+   "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-97374"
+  },
+  {
+   "idweb": "26-97809",
+   "id": "26_97809",
+   "contractfolderid": "null",
+   "objet": "Extension du système de vidéoprotection sur la commune de Talant",
+   "filename": "26-97809",
+   "famille": "FNS",
+   "code_departement": "[\"21\"]",
+   "code_departement_prestation": "null",
+   "famille_libelle": "Marchés entre 90 k€ et seuils européens",
+   "dateparution": "2026-10-09",
+   "datefindiffusion": "2026-10-31",
+   "datelimitereponse": "2026-10-30T12:00:00+00:00",
+   "nomacheteur": "MAIRIE DE TALANT",
+   "titulaire": "null",
+   "perimetre": "FNSimple",
+   "type_procedure": "OUVERT",
+   "soustype_procedure": "null",
+   "procedure_libelle": "Procédure Ouverte",
+   "procedure_categorise": "OUVERT/",
+   "nature": "APPEL_OFFRE",
+   "sousnature": "null",
+   "nature_libelle": "Avis de marché",
+   "sousnature_libelle": "null",
+   "nature_categorise": "appeloffre/standard",
+   "nature_categorise_libelle": "Avis de marché/",
+   "criteres": "null",
+   "marche_public_simplifie": "null",
+   "marche_public_simplifie_label": "null",
+   "etat": "INITIAL",
+   "descripteur_code": "[\"415\"]",
+   "dc": "[\"415\"]",
+   "descripteur_libelle": "[\"Télésurveillance\"]",
+   "type_marche": "[\"TRAVAUX\"]",
+   "type_marche_facette": "[\"Travaux\"]",
+   "type_avis": "[\"5\", \"1\"]",
+   "annonce_lie": "null",
+   "annonces_anterieures": "null",
+   "source_schema": "3.2.5",
+   "gestion": "{\"REFERENCE\": {\"IDWEB\": \"26-97809\", \"TYPE_AVIS\": {\"FAMILLE\": {\"FNS\": \"\"}, \"PERIMETRE\": {\"FNSimple\": \"\"}, \"NATURE\": {\"APPEL_OFFRE\": \"\"}, \"STATUT\": {\"INITIAL\": \"\"}}}, \"INDEXATION\": {\"SCHEMA\": \"3.2.5\", \"NOMORGANISME\": \"MAIRIE DE TALANT\", \"TYPE_PROCEDURE\": {\"OUVERT\": \"\"}, \"DATE_PUBLICATION\": \"2026-10-09\", \"DATE_LIMITE_REPONSE\": \"2026-10-30T12:00:00\", \"DATE_FIN_DIFFUSION\": \"2026-10-31\", \"DESCRIPTEURS\": {\"DESCRIPTEUR\": {\"CODE\": \"415\", \"LIBELLE\": \"Télésurveillance\"}}, \"NATURE_MARCHE\": {\"TRAVAUX\": \"\"}, \"DEP_PUBLICATION\": \"21\", \"RESUME_OBJET\": \"Extension du système de vidéoprotection sur la commune de Talant\"}}",
+   "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-97809"
+  },
+  {
+   "idweb": "26-97805",
+   "id": "26_97805",
+   "contractfolderid": "null",
+   "objet": "MARCHE DE MAITRISE D’OEUVRE POUR LA CREATION D’UN RESEAU DE CHALEUR A SAONE",
+   "filename": "26-97805",
+   "famille": "FNS",
+   "code_departement": "[\"21\", \"25\", \"39\", \"70\", \"90\"]",
+   "code_departement_prestation": "null",
+   "famille_libelle": "Marchés entre 90 k€ et seuils européens",
+   "dateparution": "2026-10-09",
+   "datefindiffusion": "2026-11-04",
+   "datelimitereponse": "2026-11-04T12:00:00+00:00",
+   "nomacheteur": "Grand Besançon Métropole",
+   "titulaire": "null",
+   "perimetre": "FNSimple",
+   "type_procedure": "OUVERT",
+   "soustype_procedure": "null",
+   "procedure_libelle": "Procédure Ouverte",
+   "procedure_categorise": "OUVERT/",
+   "nature": "APPEL_OFFRE",
+   "sousnature": "null",
+   "nature_libelle": "Avis de marché",
+   "sousnature_libelle": "null",
+   "nature_categorise": "appeloffre/standard",
+   "nature_categorise_libelle": "Avis de marché/",
+   "criteres": "[\"environnementaux\"]",
+   "marche_public_simplifie": "null",
+   "marche_public_simplifie_label": "null",
+   "etat": "INITIAL",
+   "descripteur_code": "[\"197\"]",
+   "dc": "[\"197\"]",
+   "descripteur_libelle": "[\"Maîtrise d'oeuvre\"]",
+   "type_marche": "[\"SERVICES\"]",
+   "type_marche_facette": "[\"Services\"]",
+   "type_avis": "[\"5\", \"1\"]",
+   "annonce_lie": "null",
+   "annonces_anterieures": "null",
+   "source_schema": "3.2.5",
+   "gestion": "{\"REFERENCE\": {\"IDWEB\": \"26-97805\", \"TYPE_AVIS\": {\"FAMILLE\": {\"FNS\": \"\"}, \"PERIMETRE\": {\"FNSimple\": \"\"}, \"NATURE\": {\"APPEL_OFFRE\": \"\"}, \"STATUT\": {\"INITIAL\": \"\"}}}, \"INDEXATION\": {\"SCHEMA\": \"3.2.5\", \"NOMORGANISME\": \"Grand Besançon Métropole\", \"TYPE_PROCEDURE\": {\"OUVERT\": \"\"}, \"DATE_PUBLICATION\": \"2026-10-09\", \"DATE_LIMITE_REPONSE\": \"2026-11-04T12:00:00.000\", \"DATE_FIN_DIFFUSION\": \"2026-11-04\", \"DESCRIPTEURS\": {\"DESCRIPTEUR\": {\"CODE\": \"197\", \"LIBELLE\": \"Maîtrise d'oeuvre\"}}, \"NATURE_MARCHE\": {\"SERVICES\": \"\"}, \"CRITERES_SOCIAUX_ENV\": {\"ENVIRONNEMENTAUX\": \"\"}, \"DEP_PUBLICATION\": [\"21\", \"25\", \"39\", \"70\", \"90\"], \"RESUME_OBJET\": \"MARCHE DE MAITRISE D’OEUVRE POUR LA CREATION D’UN RESEAU DE CHALEUR A SAONE\"}}",
+   "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-97805"
+  },
+  {
+   "idweb": "26-97891",
+   "id": "26_97891",
+   "contractfolderid": "null",
+   "objet": "ASSISTANCE INFORMATIQUE ET INFOGERANCE",
+   "filename": "26-97891",
+   "famille": "FNS",
+   "code_departement": "[\"21\"]",
+   "code_departement_prestation": "null",
+   "famille_libelle": "Marchés entre 90 k€ et seuils européens",
+   "dateparution": "2026-10-09",
+   "datefindiffusion": "2026-11-02",
+   "datelimitereponse": "2026-11-02T12:00:00+00:00",
+   "nomacheteur": "CDG 21",
+   "titulaire": "null",
+   "perimetre": "FNSimple",
+   "type_procedure": "OUVERT",
+   "soustype_procedure": "null",
+   "procedure_libelle": "Procédure Ouverte",
+   "procedure_categorise": "OUVERT/",
+   "nature": "APPEL_OFFRE",
+   "sousnature": "null",
+   "nature_libelle": "Avis de marché",
+   "sousnature_libelle": "null",
+   "nature_categorise": "appeloffre/standard",
+   "nature_categorise_libelle": "Avis de marché/",
+   "criteres": "null",
+   "marche_public_simplifie": "null",
+   "marche_public_simplifie_label": "null",
+   "etat": "INITIAL",
+   "descripteur_code": "[\"453\", \"454\", \"163\"]",
+   "dc": "[\"453\", \"454\", \"163\"]",
+   "descripteur_libelle": "[\"Informatique (assistance)\", \"Informatique (maintenance serveurs et réseaux)\", \"Informatique (prestations de services)\"]",
+   "type_marche": "[\"SERVICES\"]",
+   "type_marche_facette": "[\"Services\"]",
+   "type_avis": "[\"5\", \"1\"]",
+   "annonce_lie": "null",
+   "annonces_anterieures": "null",
+   "source_schema": "3.2.5",
+   "gestion": "{\"REFERENCE\": {\"IDWEB\": \"26-97891\", \"TYPE_AVIS\": {\"FAMILLE\": {\"FNS\": \"\"}, \"PERIMETRE\": {\"FNSimple\": \"\"}, \"NATURE\": {\"APPEL_OFFRE\": \"\"}, \"STATUT\": {\"INITIAL\": \"\"}}}, \"INDEXATION\": {\"SCHEMA\": \"3.2.5\", \"NOMORGANISME\": \"CDG 21\", \"TYPE_PROCEDURE\": {\"OUVERT\": \"\"}, \"DATE_PUBLICATION\": \"2026-10-09\", \"DATE_LIMITE_REPONSE\": \"2026-11-02T12:00:00.000+01:00\", \"DATE_FIN_DIFFUSION\": \"2026-11-02\", \"DESCRIPTEURS\": {\"DESCRIPTEUR\": [{\"CODE\": \"453\", \"LIBELLE\": \"Informatique (assistance)\"}, {\"CODE\": \"454\", \"LIBELLE\": \"Informatique (maintenance serveurs et réseaux)\"}, {\"CODE\": \"163\", \"LIBELLE\": \"Informatique (prestations de services)\"}]}, \"NATURE_MARCHE\": {\"SERVICES\": \"\"}, \"DEP_PUBLICATION\": \"21\", \"RESUME_OBJET\": \"ASSISTANCE INFORMATIQUE ET INFOGERANCE\"}}",
+   "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-97891"
+  }
+ ],
+ "marche_donnees": [
+  "{\"EFORMS\": {\"ContractNotice\": {\"ext:UBLExtensions\": {\"ext:UBLExtension\": {\"ext:ExtensionContent\": {\"efext:EformsExtension\": {\"efac:NoticeSubType\": {\"cbc:SubTypeCode\": {\"@listName\": \"notice-subtype\", \"#text\": \"16\"}}, \"efac:Organizations\": {\"efac:Organization\": [{\"efbc:AwardingCPBIndicator\": \"false\", \"efac:Company\": {\"cbc:WebsiteURI\": \"https://www.marches-publics.gouv.fr\", \"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}, \"cac:PartyName\": {\"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"Voies Navigables de France - DTCB\"}}, \"cac:PostalAddress\": {\"cbc:StreetName\": \"1 chemin Jacques de Baerze\", \"cbc:Department\": \"Côte d'or\", \"cbc:CityName\": \"Dijon\", \"cbc:PostalZone\": \"21000\", \"cbc:CountrySubentityCode\": {\"@listName\": \"nuts\", \"#text\": \"FRC11\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}, \"cac:PartyLegalEntity\": {\"cbc:CompanyID\": \"13001779101412\"}, \"cac:Contact\": {\"cbc:Name\": \"Pôle commande publique\", \"cbc:Telephone\": \"+33 3 45 34 13 00\", \"cbc:ElectronicMail\": \"pcp.dt.centrebourgogne@vnf.fr\"}}}, {\"efac:Company\": {\"cbc:WebsiteURI\": \"www.telerecours.fr\", \"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0002\"}, \"cac:PartyName\": {\"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"Tribunal administratif de Dijon\"}}, \"cac:PostalAddress\": {\"cbc:StreetName\": \"22 rue d'Assas\", \"cbc:Department\": \"Côte d'or\", \"cbc:CityName\": \"Dijon\", \"cbc:PostalZone\": \"21000\", \"cbc:CountrySubentityCode\": {\"@listName\": \"nuts\", \"#text\": \"FRC11\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}, \"cac:PartyLegalEntity\": {\"cbc:CompanyID\": \"17210005900010\"}, \"cac:Contact\": {\"cbc:Name\": \"Tribunal administratif de Dijon\", \"cbc:Telephone\": \"+33 3 80 73 91 00\", \"cbc:ElectronicMail\": \"greffe.ta-dijon@juradm.fr \"}}}]}}}}}, \"cbc:UBLVersionID\": {\"@schemeName\": \"notice-id\", \"#text\": \"2.3\"}, \"cbc:CustomizationID\": {\"@schemeName\": \"notice-id\", \"#text\": \"eforms-sdk-1.13\"}, \"cbc:ID\": {\"@schemeName\": \"notice-id\", \"#text\": \"c5acf679-77e3-49cb-a851-0144ef4fb9db\"}, \"cbc:ContractFolderID\": \"bfb7215f-a38e-46d3-bac3-c34506a416bd\", \"cbc:IssueDate\": \"2026-10-08+02:00\", \"cbc:IssueTime\": \"12:00:42.000+02:00\", \"cbc:VersionID\": {\"@schemeName\": \"notice-id\", \"#text\": \"01\"}, \"cbc:RegulatoryDomain\": \"32014L0024\", \"cbc:NoticeTypeCode\": {\"@listName\": \"competition\", \"#text\": \"cn-standard\"}, \"cbc:NoticeLanguageCode\": {\"@listName\": \"language\", \"#text\": \"FRA\"}, \"cac:ContractingParty\": {\"cbc:BuyerProfileURI\": \"https://www.marches-publics.gouv.fr/entreprise\", \"cac:ContractingPartyType\": {\"cbc:PartyTypeCode\": {\"@listName\": \"buyer-legal-type\", \"#text\": \"body-pl\"}}, \"cac:ContractingActivity\": {\"cbc:ActivityTypeCode\": {\"@listName\": \"authority-activity\", \"#text\": \"env-pro\"}}, \"cac:Party\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}}}, \"cac:TenderingTerms\": {\"cac:ProcurementLegislationDocumentReference\": [{\"cbc:ID\": \"LocalLegalBasis\", \"cbc:DocumentDescription\": {\"@languageID\": \"FRA\", \"#text\": \"Sans objet\"}}, {\"cbc:ID\": \"CrossBorderLaw\", \"cbc:DocumentDescription\": {\"@languageID\": \"FRA\", \"#text\": \"Sans objet\"}}], \"cac:TendererQualificationRequest\": {\"cac:SpecificTendererRequirement\": {\"cbc:TendererRequirementTypeCode\": {\"@listName\": \"exclusion-grounds-source\", \"#text\": \"epo-procurement-document\"}}}}, \"cac:TenderingProcess\": {\"cbc:ProcedureCode\": {\"@listName\": \"procurement-procedure-type\", \"#text\": \"open\"}, \"cac:ProcessJustification\": {\"cbc:ProcessReasonCode\": {\"@listName\": \"accelerated-procedure\", \"#text\": \"false\"}}}, \"cac:ProcurementProject\": {\"cbc:ID\": \"26_DIMOA_GROSBOIS2\", \"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"Mission de maîtrise d’œuvre pour la réhausse du noyau et la réfection du parement amont du barrage réservoir de Grosbois 2\"}, \"cbc:Description\": {\"@languageID\": \"FRA\", \"#text\": \"Mission de maîtrise d’œuvre pour la réhausse du noyau et la réfection du parement amont du barrage réservoir de Grosbois 2\"}, \"cbc:ProcurementTypeCode\": {\"@listName\": \"contract-nature\", \"#text\": \"services\"}, \"cac:RequestedTenderTotal\": {\"cbc:EstimatedOverallContractAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"125000\"}}, \"cac:MainCommodityClassification\": {\"cbc:ItemClassificationCode\": {\"@listName\": \"cpv\", \"#text\": \"71300000\"}}, \"cac:RealizedLocation\": {\"cbc:Description\": {\"@languageID\": \"FRA\", \"#text\": \"Barrage de Grosbois 2 – commune de Grosbois-en-Montagne (21)\"}, \"cac:Address\": {\"cbc:CountrySubentityCode\": {\"@listName\": \"nuts\", \"#text\": \"FRC11\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}}}, \"cac:ProcurementProjectLot\": {\"cbc:ID\": {\"@schemeName\": \"Lot\", \"#text\": \"LOT-0001\"}, \"cac:TenderingTerms\": {\"cbc:VariantConstraintCode\": {\"@listName\": \"permission\", \"#text\": \"not-allowed\"}, \"cbc:FundingProgramCode\": {\"@listName\": \"eu-funded\", \"#text\": \"no-eu-funds\"}, \"cac:CallForTendersDocumentReference\": {\"cbc:ID\": \"26_DIMOA_GROSBOIS2\", \"cbc:DocumentType\": \"non-restricted-document\", \"cac:Attachment\": {\"cac:ExternalReference\": {\"cbc:URI\": \"https://www.marches-publics.gouv.fr/entreprise/consultation/3082234?orgAcronyme=d4t\"}}}, \"cac:TendererQualificationRequest\": [{\"cac:SpecificTendererRequirement\": {\"cbc:TendererRequirementTypeCode\": {\"@listName\": \"selection-criteria-source\", \"#text\": \"epo-procurement-document\"}}}, {\"cac:SpecificTendererRequirement\": {\"cbc:TendererRequirementTypeCode\": {\"@listName\": \"reserved-procurement\", \"#text\": \"none\"}}}], \"cac:ContractExecutionRequirement\": [{\"cbc:ExecutionRequirementCode\": {\"@listName\": \"reserved-execution\", \"#text\": \"no\"}}, {\"cbc:ExecutionRequirementCode\": {\"@listName\": \"conditions\", \"#text\": \"performance\"}}, {\"cbc:ExecutionRequirementCode\": {\"@listName\": \"einvoicing\", \"#text\": \"required\"}}, {\"cbc:ExecutionRequirementCode\": {\"@listName\": \"ecatalog-submission\", \"#text\": \"not-allowed\"}}], \"cac:TenderRecipientParty\": {\"cbc:EndpointID\": \"https://www.marches-publics.gouv.fr/entreprise/consultation/3082234?orgAcronyme=d4t\"}, \"cac:TenderValidityPeriod\": {\"cbc:DurationMeasure\": {\"@unitCode\": \"DAY\", \"#text\": \"180\"}}, \"cac:AppealTerms\": {\"cac:PresentationPeriod\": {\"cbc:Description\": {\"@languageID\": \"FRA\", \"#text\": \"- Référé précontractuel avant la signature du contrat (articles L.551-1 à 12 du Code de Justice Administrative) ;  - Référé contractuel après la signature du contrat, dans les 31 jours qui suivent la publication de l’avis d’attribution du contrat, ou, à défaut d’un tel avis, dans les six mois qui suivent la date de conclusion de celui-ci (articles L.551-13 à 23 du même code) ; - Recours en contestation de la validité du contrat, conformément à la décision du Conseil d'État du 4 avril 2014 n°358994 \\\"Tarn et Garonne\\\", dans un délai de 2 mois à compter de la publication de l'avis d'attribution ou à défaut de toute autre mesure de publicité concernant la conclusion du contrat.\"}}, \"cac:AppealReceiverParty\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0002\"}}}, \"cac:Language\": {\"cbc:ID\": \"FRA\"}, \"cac:PostAwardProcess\": {\"cbc:ElectronicOrderUsageIndicator\": \"false\", \"cbc:ElectronicPaymentUsageIndicator\": \"false\"}}, \"cac:TenderingProcess\": {\"cbc:SubmissionMethodCode\": {\"@listName\": \"esubmission\", \"#text\": \"required\"}, \"cbc:GovernmentAgreementConstraintIndicator\": \"true\", \"cac:TenderSubmissionDeadlinePeriod\": {\"cbc:EndDate\": \"2026-11-18+01:00\", \"cbc:EndTime\": \"17:00:00.000+02:00\"}, \"cac:AuctionTerms\": {\"cbc:AuctionConstraintIndicator\": \"false\"}, \"cac:FrameworkAgreement\": {\"cac:SubsequentProcessTenderRequirement\": {\"cbc:Name\": \"buyer-categories\"}}, \"cac:ContractingSystem\": [{\"cbc:ContractingSystemTypeCode\": {\"@listName\": \"framework-agreement\", \"#text\": \"none\"}}, {\"cbc:ContractingSystemTypeCode\": {\"@listName\": \"dps-usage\", \"#text\": \"none\"}}]}, \"cac:ProcurementProject\": {\"cbc:ID\": \"26_DIMOA_GROSBOIS2\", \"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"Mission de maîtrise d’œuvre pour la réhausse du noyau et la réfection du parement amont du barrage réservoir de Grosbois 2\"}, \"cbc:Description\": {\"@languageID\": \"FRA\", \"#text\": \"Mission de maîtrise d’œuvre pour la réhausse du noyau et la réfection du parement amont du barrage réservoir de Grosbois 2\"}, \"cbc:ProcurementTypeCode\": {\"@listName\": \"contract-nature\", \"#text\": \"services\"}, \"cac:RequestedTenderTotal\": {\"cbc:EstimatedOverallContractAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"125000\"}}, \"cac:MainCommodityClassification\": {\"cbc:ItemClassificationCode\": {\"@listName\": \"cpv\", \"#text\": \"71300000\"}}, \"cac:RealizedLocation\": {\"cbc:Description\": {\"@languageID\": \"FRA\", \"#text\": \"Barrage de Grosbois 2 – commune de Grosbois-en-Montagne (21)\"}, \"cac:Address\": {\"cbc:CountrySubentityCode\": {\"@listName\": \"nuts\", \"#text\": \"FRC11\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}}, \"cac:PlannedPeriod\": {\"cbc:DurationMeasure\": {\"@unitCode\": \"YEAR\", \"#text\": \"4\"}}, \"cac:ContractExtension\": {\"cbc:OptionsDescription\": {\"@languageID\": \"FRA\", \"#text\": \"Le pouvoir adjudicateur se réserve la possibilité de confier ultérieurement au titulaire du marché, en application des articles L. 2122-1 et R. 2122-7 du Code de la commande publiqu…[9102 car.]",
+  "{\"FNSimple\": {\"organisme\": {\"nomOfficiel\": \"MAIRIE DE TALANT\", \"typeIdentificationNational\": {\"siret\": \"\"}, \"codeIdentificationNational\": \"21210617300017\", \"ville\": \"Talant\", \"cp\": \"21240\", \"grpCommandes\": {\"non\": \"\"}}, \"initial\": {\"communication\": {\"urlProfilAch\": \"https://www.achatpublic.com/sdm/ent/gen/ent_detail.do?PCSLID=CSL_2026_NdDViLKbPs\", \"identifiantInterne\": \"26M006\", \"docSecurite\": {\"oui\": \"\"}, \"urlSecurite\": {\"non\": \"\"}, \"nomContact\": \"Monsieur le Maire\", \"adresseMailContact\": \"marches@talant.fr\", \"telContact\": \"0380446000\"}, \"procedure\": {\"procedureAdapteeO\": \"\", \"capaciteExercice\": \"Le candidat devra préciser s'il est en redressement judiciaire et produire une copie du jugement prononcé.\\nIl fournira une déclaration sur l'honneur pour justifier qu'il n'entre dans aucun des cas mentionnés aux articles L 2141-1 et suivants du Code de la Commande Publique (CCP) et aux articles R 2143-6 à R 2143-10 et R 2143-16 du CCP.\", \"capaciteEcoFin\": \"Elle sera appréciée au regard d’une déclaration des chiffres d’affaires des 3 dernières années.\", \"capaciteTech\": \"Pour démontrer sa capacité, le candidat présentera 3 références d’ouvrage de même importance et difficultés que le lot sur lequel il se positionne, réalisées au cours des 5 dernières années.\\nLes moyens en personnel : ouvriers, personnels d’encadrement dont dispose l’entreprise.\\nL’outillage, le matériel et l’équipement technique dont le candidat dispose pour la réalisation de marché de même nature.\", \"techAchat\": {\"autres\": \"\"}, \"dateReceptionOffres\": \"2026-10-30T12:00:00\", \"presOffres\": {\"interdite\": \"\"}, \"nbCandidatReduit\": {\"non\": \"\"}, \"attributionSansNegociation\": {\"oui\": \"\"}, \"variantes\": {\"non\": \"\"}}, \"natureMarche\": {\"intitule\": \"Extension du système de vidéoprotection sur la commune de Talant\", \"codeCPV\": {\"objetPrincipal\": {\"classPrincipale\": \"45200000\"}}, \"natureMarche\": {\"travaux\": \"\"}, \"description\": \"Extension du système de vidéoprotection sur la commune de Talant\", \"lieuExecution\": \"Côte-d'Or\", \"tranches\": {\"non\": \"\"}, \"reservationMarche\": {\"non\": \"\"}, \"lotsMarche\": {\"non\": \"\"}}, \"informComplementaire\": {\"non\": \"\", \"autresInformComplementaire\": \"Durée du marché : \\nLe Marché est conclu du 1er janvier 2027 jusqu'au 31 décembre 2027, reconductible tacitement trois fois par période annuelle (soit au maximum jusqu'au 31 décembre 2030).\\nJustificatifs relatifs à l'offre :\\n- L'acte d'engagement \\n- Le Bordereau des Prix Unitaire signé (BPU)\\n- Le Devis Quantitatif et Estimatif (DQE)\\n- Le cadre de réponse\\nCritères d'attribution :\\n1. Prix des prestations (45 points)\\n2. Valeur technique (45 points)\\n3. Valeur environnementale (10 points)\\nConditions de remise des offres :\\nExclusivement sous forme dématérialisée à l’adresse suivante : http://www.achatpublic.com.\\nUne copie de sauvegarde peut être déposée à l’adresse figurant au point 1 aux horaires suivants : 8 h 30 - 12 h 00 et 13 h 30 - 17 h 30 du lundi au vendredi\\nAutres renseignements :\\nPour obtenir tous renseignements administratifs et/ou techniques complémentaires qui leur seraient nécessaires au cours de leur étude, les candidats devront faire parvenir une demande sur la plateforme achatpublic.com via le module « questions/réponses ». Cette demande devra être faite au plus tard 8 jours avant la date limite de remise des offres.\"}}}}"
+ ],
+ "attribution": [
+  {
+   "idweb": "26-97235",
+   "id": "26_97235",
+   "contractfolderid": "bdc4b689-9735-4f1d-8197-be92c3b44948",
+   "objet": "Accord-cadre multi-attributaires pour la fourniture et l’acheminement de gaz naturel et services associés sur le périmètre de la région Bourgogne Franche-Comté",
+   "filename": "26-97235",
+   "famille": "JOUE",
+   "code_departement": "[\"58\", \"21\", \"71\", \"89\", \"25\", \"39\", \"70\", \"90\"]",
+   "code_departement_prestation": "null",
+   "famille_libelle": "Marchés européens",
+   "dateparution": "2026-10-09",
+   "datefindiffusion": "2026-11-08",
+   "datelimitereponse": "null",
+   "nomacheteur": "Syndicat Intercommunal d&#039;Energies, d&#039;Equipement et d&#039;Environnement de la Nièvre",
+   "titulaire": "[\"ENGIE\", \"TOTALENERGIES ELECTRICITE ET GAZ FRANCE\", \"GAZ DE BORDEAUX\", \"BLANKA\", \"ENGIE\", \"TOTALENERGIES ELECTRICITE ET GAZ FRANCE\", \"GAZ DE BORDEAUX\", \"BLANKA\"]",
+   "perimetre": "DIRECTIVE-24",
+   "type_procedure": "OUVERT",
+   "soustype_procedure": "null",
+   "procedure_libelle": "Procédure Ouverte",
+   "procedure_categorise": "OUVERT/",
+   "nature": "ATTRIBUTION",
+   "sousnature": "STANDARD",
+   "nature_libelle": "Résultat de marché",
+   "sousnature_libelle": "null",
+   "nature_categorise": "attribution/standard",
+   "nature_categorise_libelle": "Résultat de marché/",
+   "criteres": "null",
+   "marche_public_simplifie": "null",
+   "marche_public_simplifie_label": "null",
+   "etat": "INITIAL",
+   "descripteur_code": "[\"443\"]",
+   "dc": "[\"443\"]",
+   "descripteur_libelle": "[\"Electricité, gaz (fourniture)\"]",
+   "type_marche": "[\"FOURNITURES\"]",
+   "type_marche_facette": "[\"Fournitures\"]",
+   "type_avis": "[\"10\", \"6\"]",
+   "annonce_lie": "[\"26-64118\"]",
+   "annonces_anterieures": "null",
+   "source_schema": "3.2.5",
+   "gestion": "{\"REFERENCE\": {\"IDWEB\": \"26-97235\", \"TYPE_AVIS\": {\"FAMILLE\": {\"JOUE\": \"\"}, \"PERIMETRE\": {\"DIRECTIVE-24\": \"\"}, \"NATURE\": {\"ATTRIBUTION\": {\"STANDARD\": \"\"}}, \"STATUT\": {\"INITIAL\": \"\"}}, \"ANNONCE_ANTERIEUR\": {\"IDWEB\": \"26-64118\"}}, \"INDEXATION\": {\"SCHEMA\": \"3.2.5\", \"NOMORGANISME\": \"Syndicat Intercommunal d&#039;Energies, d&#039;Equipement et d&#039;Environnement de la Nièvre\", \"TITULAIRES\": {\"DENOMINATION\": [\"ENGIE\", \"TOTALENERGIES ELECTRICITE ET GAZ FRANCE\", \"GAZ DE BORDEAUX\", \"BLANKA\", \"ENGIE\", \"TOTALENERGIES ELECTRICITE ET GAZ FRANCE\", \"GAZ DE BORDEAUX\", \"BLANKA\"]}, \"TYPE_PROCEDURE\": {\"OUVERT\": \"\"}, \"DATE_PUBLICATION\": \"2026-10-09\", \"DATE_FIN_DIFFUSION\": \"2026-11-08\", \"DESCRIPTEURS\": {\"DESCRIPTEUR\": {\"CODE\": \"443\", \"LIBELLE\": \"Electricité, gaz (fourniture)\"}}, \"NATURE_MARCHE\": {\"FOURNITURES\": \"\"}, \"DEP_PUBLICATION\": [\"58\", \"21\", \"71\", \"89\", \"25\", \"39\", \"70\", \"90\"], \"RESUME_OBJET\": \"Accord-cadre multi-attributaires pour la fourniture et l’acheminement de gaz naturel et services associés sur le périmètre de la région Bourgogne Franche-Comté\"}}",
+   "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-97235"
+  },
+  {
+   "idweb": "26-97018",
+   "id": "26_97018",
+   "contractfolderid": "97e5d9a7-b128-48af-bece-9d041f3646d2",
+   "objet": "DIJON METROPOLE - Lot M01 - Conception-réalisation - Modernisation des deux lignes de traitement et de récupération de l'énergie - Fours / chaudières",
+   "filename": "26-97018",
+   "famille": "JOUE",
+   "code_departement": "[\"21\"]",
+   "code_departement_prestation": "null",
+   "famille_libelle": "Marchés européens",
+   "dateparution": "2026-10-09",
+   "datefindiffusion": "2027-01-04",
+   "datelimitereponse": "null",
+   "nomacheteur": "Dijon Métropole",
+   "titulaire": "[\"Kanadevia Inova AG\"]",
+   "perimetre": "DIRECTIVE-24",
+   "type_procedure": "NEGOCIE",
+   "soustype_procedure": "null",
+   "procedure_libelle": "Procédure Négociée",
+   "procedure_categorise": "NEGOCIE/",
+   "nature": "ATTRIBUTION",
+   "sousnature": "STANDARD",
+   "nature_libelle": "Résultat de marché",
+   "sousnature_libelle": "null",
+   "nature_categorise": "attribution/standard",
+   "nature_categorise_libelle": "Résultat de marché/",
+   "criteres": "[\"environnementaux\"]",
+   "marche_public_simplifie": "null",
+   "marche_public_simplifie_label": "null",
+   "etat": "INITIAL",
+   "descripteur_code": "[\"96\"]",
+   "dc": "[\"96\"]",
+   "descripteur_libelle": "[\"Déchetterie (travaux)\"]",
+   "type_marche": "[\"TRAVAUX\"]",
+   "type_marche_facette": "[\"Travaux\"]",
+   "type_avis": "[\"10\", \"6\"]",
+   "annonce_lie": "[\"25-119407\"]",
+   "annonces_anterieures": "null",
+   "source_schema": "3.2.5",
+   "gestion": "{\"REFERENCE\": {\"IDWEB\": \"26-97018\", \"TYPE_AVIS\": {\"FAMILLE\": {\"JOUE\": \"\"}, \"PERIMETRE\": {\"DIRECTIVE-24\": \"\"}, \"NATURE\": {\"ATTRIBUTION\": {\"STANDARD\": \"\"}}, \"STATUT\": {\"INITIAL\": \"\"}}, \"ANNONCE_ANTERIEUR\": {\"IDWEB\": \"25-119407\"}}, \"INDEXATION\": {\"SCHEMA\": \"3.2.5\", \"NOMORGANISME\": \"Dijon Métropole\", \"TITULAIRES\": {\"DENOMINATION\": \"Kanadevia Inova AG\"}, \"TYPE_PROCEDURE\": {\"NEGOCIE\": \"\"}, \"DATE_PUBLICATION\": \"2026-10-09\", \"DATE_FIN_DIFFUSION\": \"2027-01-04\", \"DESCRIPTEURS\": {\"DESCRIPTEUR\": {\"CODE\": \"96\", \"LIBELLE\": \"Déchetterie (travaux)\"}}, \"NATURE_MARCHE\": {\"TRAVAUX\": \"\"}, \"CRITERES_SOCIAUX_ENV\": {\"ENVIRONNEMENTAUX\": \"\"}, \"DEP_PUBLICATION\": \"21\", \"RESUME_OBJET\": \"DIJON METROPOLE - Lot M01 - Conception-réalisation - Modernisation des deux lignes de traitement et de récupération de l'énergie - Fours / chaudières\"}}",
+   "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-97018"
+  },
+  {
+   "idweb": "26-96029",
+   "id": "26_96029",
+   "contractfolderid": "c94044f7-4136-419a-b038-3f5f7b38f2b4",
+   "objet": "Fourniture de mobilier",
+   "filename": "26-96029",
+   "famille": "JOUE",
+   "code_departement": "[\"68\", \"67\", \"21\", \"88\", \"57\", \"54\", \"90\", \"25\"]",
+   "code_departement_prestation": "null",
+   "famille_libelle": "Marchés européens",
+   "dateparution": "2026-10-07",
+   "datefindiffusion": "2026-10-16",
+   "datelimitereponse": "null",
+   "nomacheteur": "Université de Haute-Alsace",
+   "titulaire": "[\"TERTIA SOLUTIONS\"]",
+   "perimetre": "DIRECTIVE-24",
+   "type_procedure": "OUVERT",
+   "soustype_procedure": "null",
+   "procedure_libelle": "Procédure Ouverte",
+   "procedure_categorise": "OUVERT/",
+   "nature": "ATTRIBUTION",
+   "sousnature": "STANDARD",
+   "nature_libelle": "Résultat de marché",
+   "sousnature_libelle": "null",
+   "nature_categorise": "attribution/standard",
+   "nature_categorise_libelle": "Résultat de marché/",
+   "criteres": "[\"sociaux\"]",
+   "marche_public_simplifie": "null",
+   "marche_public_simplifie_label": "null",
+   "etat": "INITIAL",
+   "descripteur_code": "[\"230\"]",
+   "dc": "[\"230\"]",
+   "descripteur_libelle": "[\"Mobilier\"]",
+   "type_marche": "[\"FOURNITURES\"]",
+   "type_marche_facette": "[\"Fournitures\"]",
+   "type_avis": "[\"10\", \"6\"]",
+   "annonce_lie": "[\"26-21669\"]",
+   "annonces_anterieures": "null",
+   "source_schema": "3.2.5",
+   "gestion": "{\"REFERENCE\": {\"IDWEB\": \"26-96029\", \"TYPE_AVIS\": {\"FAMILLE\": {\"JOUE\": \"\"}, \"PERIMETRE\": {\"DIRECTIVE-24\": \"\"}, \"NATURE\": {\"ATTRIBUTION\": {\"STANDARD\": \"\"}}, \"STATUT\": {\"INITIAL\": \"\"}}, \"ANNONCE_ANTERIEUR\": {\"IDWEB\": \"26-21669\"}}, \"INDEXATION\": {\"SCHEMA\": \"3.2.5\", \"NOMORGANISME\": \"Université de Haute-Alsace\", \"TITULAIRES\": {\"DENOMINATION\": \"TERTIA SOLUTIONS\"}, \"TYPE_PROCEDURE\": {\"OUVERT\": \"\"}, \"DATE_PUBLICATION\": \"2026-10-07\", \"DATE_FIN_DIFFUSION\": \"2026-10-16\", \"DESCRIPTEURS\": {\"DESCRIPTEUR\": {\"CODE\": \"230\", \"LIBELLE\": \"Mobilier\"}}, \"NATURE_MARCHE\": {\"FOURNITURES\": \"\"}, \"CRITERES_SOCIAUX_ENV\": {\"SOCIAUX\": \"\"}, \"DEP_PUBLICATION\": [\"68\", \"67\", \"21\", \"88\", \"57\", \"54\", \"90\", \"25\"], \"RESUME_OBJET\": \"Fourniture de mobilier\"}}",
+   "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-96029"
+  },
+  {
+   "idweb": "26-95776",
+   "id": "26_95776",
+   "contractfolderid": "00601781-169a-4c8e-8b5d-beaedbfa3365",
+   "objet": "Acquisition de cartes accréditives multi-enseignes",
+   "filename": "26-95776",
+   "famille": "JOUE",
+   "code_departement": "[\"21\"]",
+   "code_departement_prestation": "null",
+   "famille_libelle": "Marchés européens",
+   "dateparution": "2026-10-06",
+   "datefindiffusion": "2026-10-15",
+   "datelimitereponse": "null",
+   "nomacheteur": "Conseil Départemental de Côte d'Or (21)",
+   "titulaire": "[\"FLEET PRO\", \"LA COMPAGNIE DES CARTES CARBURANT\", \"DKV EURO SERVICE GMBH ET CO KG\"]",
+   "perimetre": "DIRECTIVE-24",
+   "type_procedure": "OUVERT",
+   "soustype_procedure": "null",
+   "procedure_libelle": "Procédure Ouverte",
+   "procedure_categorise": "OUVERT/",
+   "nature": "ATTRIBUTION",
+   "sousnature": "STANDARD",
+   "nature_libelle": "Résultat de marché",
+   "sousnature_libelle": "null",
+   "nature_categorise": "attribution/standard",
+   "nature_categorise_libelle": "Résultat de marché/",
+   "criteres": "null",
+   "marche_public_simplifie": "null",
+   "marche_public_simplifie_label": "null",
+   "etat": "INITIAL",
+   "descripteur_code": "[\"52\"]",
+   "dc": "[\"52\"]",
+   "descripteur_libelle": "[\"Carburant, hydrocarbure\"]",
+   "type_marche": "[\"FOURNITURES\"]",
+   "type_marche_facette": "[\"Fournitures\"]",
+   "type_avis": "[\"10\", \"6\"]",
+   "annonce_lie": "[\"26-56505\"]",
+   "annonces_anterieures": "null",
+   "source_schema": "3.2.5",
+   "gestion": "{\"REFERENCE\": {\"IDWEB\": \"26-95776\", \"TYPE_AVIS\": {\"FAMILLE\": {\"JOUE\": \"\"}, \"PERIMETRE\": {\"DIRECTIVE-24\": \"\"}, \"NATURE\": {\"ATTRIBUTION\": {\"STANDARD\": \"\"}}, \"STATUT\": {\"INITIAL\": \"\"}}, \"ANNONCE_ANTERIEUR\": {\"IDWEB\": \"26-56505\"}}, \"INDEXATION\": {\"SCHEMA\": \"3.2.5\", \"NOMORGANISME\": \"Conseil Départemental de Côte d'Or (21)\", \"TITULAIRES\": {\"DENOMINATION\": [\"FLEET PRO\", \"LA COMPAGNIE DES CARTES CARBURANT\", \"DKV EURO SERVICE GMBH ET CO KG\"]}, \"TYPE_PROCEDURE\": {\"OUVERT\": \"\"}, \"DATE_PUBLICATION\": \"2026-10-06\", \"DATE_FIN_DIFFUSION\": \"2026-10-15\", \"DESCRIPTEURS\": {\"DESCRIPTEUR\": {\"CODE\": \"52\", \"LIBELLE\": \"Carburant, hydrocarbure\"}}, \"NATURE_MARCHE\": {\"FOURNITURES\": \"\"}, \"DEP_PUBLICATION\": \"21\", \"RESUME_OBJET\": \"Acquisition de cartes accréditives multi-enseignes\"}}",
+   "url_avis": "https://www.boamp.fr/pages/avis/?q=idweb:26-95776"
+  }
+ ],
+ "attribution_donnees": [
+  "{\"EFORMS\": {\"ContractAwardNotice\": {\"ext:UBLExtensions\": {\"ext:UBLExtension\": {\"ext:ExtensionContent\": {\"efext:EformsExtension\": {\"efac:NoticeResult\": {\"efbc:OverallMaximumFrameworkContractsAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"688536000\"}, \"efac:LotResult\": [{\"cbc:ID\": {\"@schemeName\": \"RES\", \"#text\": \"RES-0001\"}, \"cbc:TenderResultCode\": {\"@listName\": \"winner-selection-status\", \"#text\": \"selec-w\"}, \"efac:LotTender\": [{\"cbc:ID\": \"TEN-0001\"}, {\"cbc:ID\": \"TEN-0002\"}, {\"cbc:ID\": \"TEN-0003\"}, {\"cbc:ID\": \"TEN-0004\"}], \"efac:FrameworkAgreementValues\": {\"cbc:MaximumValueAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"97514000\"}}, \"efac:ReceivedSubmissionsStatistics\": {\"efbc:StatisticsCode\": {\"@listName\": \"received-submission-type\", \"#text\": \"tenders\"}, \"efbc:StatisticsNumeric\": \"4\"}, \"efac:SettledContract\": [{\"cbc:ID\": \"CON-0001\"}, {\"cbc:ID\": \"CON-0002\"}, {\"cbc:ID\": \"CON-0003\"}, {\"cbc:ID\": \"CON-0004\"}], \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0001\"}}, {\"cbc:ID\": {\"@schemeName\": \"RES\", \"#text\": \"RES-0002\"}, \"cbc:TenderResultCode\": {\"@listName\": \"winner-selection-status\", \"#text\": \"selec-w\"}, \"efac:LotTender\": [{\"cbc:ID\": \"TEN-0005\"}, {\"cbc:ID\": \"TEN-0006\"}, {\"cbc:ID\": \"TEN-0007\"}, {\"cbc:ID\": \"TEN-0008\"}], \"efac:FrameworkAgreementValues\": {\"cbc:MaximumValueAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"74620000\"}}, \"efac:ReceivedSubmissionsStatistics\": {\"efbc:StatisticsCode\": {\"@listName\": \"received-submission-type\", \"#text\": \"tenders\"}, \"efbc:StatisticsNumeric\": \"4\"}, \"efac:SettledContract\": [{\"cbc:ID\": \"CON-0005\"}, {\"cbc:ID\": \"CON-0006\"}, {\"cbc:ID\": \"CON-0007\"}, {\"cbc:ID\": \"CON-0008\"}], \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0002\"}}], \"efac:LotTender\": [{\"cbc:ID\": {\"@schemeName\": \"TEN\", \"#text\": \"TEN-0001\"}, \"cac:LegalMonetaryTotal\": {\"cbc:PayableAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"97514000\"}}, \"efac:SubcontractingTerm\": {\"efbc:TermCode\": {\"@listName\": \"applicability\", \"#text\": \"no\"}}, \"efac:TenderingParty\": {\"cbc:ID\": \"TPA-0001\"}, \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0001\"}, \"efac:TenderReference\": {\"cbc:ID\": \"Offre pour le lot 1 de ENGIE\"}}, {\"cbc:ID\": {\"@schemeName\": \"TEN\", \"#text\": \"TEN-0002\"}, \"cac:LegalMonetaryTotal\": {\"cbc:PayableAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"97514000\"}}, \"efac:SubcontractingTerm\": {\"efbc:TermCode\": {\"@listName\": \"applicability\", \"#text\": \"no\"}}, \"efac:TenderingParty\": {\"cbc:ID\": \"TPA-0003\"}, \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0001\"}, \"efac:TenderReference\": {\"cbc:ID\": \"Offre pour le lot 1 de TOTALENERGIES ELECTRICITE ET GAZ FRANCE\"}}, {\"cbc:ID\": {\"@schemeName\": \"TEN\", \"#text\": \"TEN-0003\"}, \"cac:LegalMonetaryTotal\": {\"cbc:PayableAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"97514000\"}}, \"efac:SubcontractingTerm\": {\"efbc:TermCode\": {\"@listName\": \"applicability\", \"#text\": \"no\"}}, \"efac:TenderingParty\": {\"cbc:ID\": \"TPA-0004\"}, \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0001\"}, \"efac:TenderReference\": {\"cbc:ID\": \"Offre pour le lot 1 de GAZ DE BORDEAUX\"}}, {\"cbc:ID\": {\"@schemeName\": \"TEN\", \"#text\": \"TEN-0004\"}, \"cac:LegalMonetaryTotal\": {\"cbc:PayableAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"97514000\"}}, \"efac:SubcontractingTerm\": {\"efbc:TermCode\": {\"@listName\": \"applicability\", \"#text\": \"no\"}}, \"efac:TenderingParty\": {\"cbc:ID\": \"TPA-0005\"}, \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0001\"}, \"efac:TenderReference\": {\"cbc:ID\": \"Offre pour le lot 1 de EKWATEUR PRO\"}}, {\"cbc:ID\": {\"@schemeName\": \"TEN\", \"#text\": \"TEN-0005\"}, \"cac:LegalMonetaryTotal\": {\"cbc:PayableAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"74620000\"}}, \"efac:SubcontractingTerm\": {\"efbc:TermCode\": {\"@listName\": \"applicability\", \"#text\": \"no\"}}, \"efac:TenderingParty\": {\"cbc:ID\": \"TPA-0006\"}, \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0002\"}, \"efac:TenderReference\": {\"cbc:ID\": \"Offre pour le lot 2 de ENGIE\"}}, {\"cbc:ID\": {\"@schemeName\": \"TEN\", \"#text\": \"TEN-0006\"}, \"cac:LegalMonetaryTotal\": {\"cbc:PayableAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"74620000\"}}, \"efac:SubcontractingTerm\": {\"efbc:TermCode\": {\"@listName\": \"applicability\", \"#text\": \"no\"}}, \"efac:TenderingParty\": {\"cbc:ID\": \"TPA-0008\"}, \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0002\"}, \"efac:TenderReference\": {\"cbc:ID\": \"Offre pour le lot 2 de TOTALENERGIES ELECTRICITE ET GAZ FRANCE\"}}, {\"cbc:ID\": {\"@schemeName\": \"TEN\", \"#text\": \"TEN-0007\"}, \"cac:LegalMonetaryTotal\": {\"cbc:PayableAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"74620000\"}}, \"efac:SubcontractingTerm\": {\"efbc:TermCode\": {\"@listName\": \"applicability\", \"#text\": \"no\"}}, \"efac:TenderingParty\": {\"cbc:ID\": \"TPA-0009\"}, \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0002\"}, \"efac:TenderReference\": {\"cbc:ID\": \"Offre pour le lot 2 de GAZ DE BORDEAUX\"}}, {\"cbc:ID\": {\"@schemeName\": \"TEN\", \"#text\": \"TEN-0008\"}, \"cac:LegalMonetaryTotal\": {\"cbc:PayableAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"74620000\"}}, \"efac:SubcontractingTerm\": {\"efbc:TermCode\": {\"@listName\": \"applicability\", \"#text\": \"no\"}}, \"efac:TenderingParty\": {\"cbc:ID\": \"TPA-0010\"}, \"efac:TenderLot\": {\"cbc:ID\": \"LOT-0002\"}, \"efac:TenderReference\": {\"cbc:ID\": \"Offre pour le lot 2 de EKWATEUR PRO\"}}], \"efac:SettledContract\": [{\"cbc:ID\": {\"@schemeName\": \"CON\", \"#text\": \"CON-0001\"}, \"cbc:IssueDate\": \"2026-10-07+02:00\", \"cac:SignatoryParty\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}}, \"efac:ContractReference\": {\"cbc:ID\": \"2026F00017\"}, \"efac:LotTender\": {\"cbc:ID\": \"TEN-0001\"}}, {\"cbc:ID\": {\"@schemeName\": \"CON\", \"#text\": \"CON-0002\"}, \"cbc:IssueDate\": \"2026-10-07+02:00\", \"cac:SignatoryParty\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}}, \"efac:ContractReference\": {\"cbc:ID\": \"2026F00018\"}, \"efac:LotTender\": {\"cbc:ID\": \"TEN-0002\"}}, {\"cbc:ID\": {\"@schemeName\": \"CON\", \"#text\": \"CON-0003\"}, \"cbc:IssueDate\": \"2026-10-07+02:00\", \"cac:SignatoryParty\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}}, \"efac:ContractReference\": {\"cbc:ID\": \"2026F00019\"}, \"efac:LotTender\": {\"cbc:ID\": \"TEN-0003\"}}, {\"cbc:ID\": {\"@schemeName\": \"CON\", \"#text\": \"CON-0004\"}, \"cbc:IssueDate\": \"2026-10-07+02:00\", \"cac:SignatoryParty\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}}, \"efac:ContractReference\": {\"cbc:ID\": \"2026F00020\"}, \"efac:LotTender\": {\"cbc:ID\": \"TEN-0004\"}}, {\"cbc:ID\": {\"@schemeName\": \"CON\", \"#text\": \"CON-0005\"}, \"cbc:IssueDate\": \"2026-10-07+02:00\", \"cac:SignatoryParty\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}}, \"efac:ContractReference\": {\"cbc:ID\": \"2026F00022\"}, \"efac:LotTender\": {\"cbc:ID\": \"TEN-0005\"}}, {\"cbc:ID\": {\"@schemeName\": \"CON\", \"#text\": \"CON-0006\"}, \"cbc:IssueDate\": \"2026-10-07+02:00\", \"cac:SignatoryParty\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}}, \"efac:ContractReference\": {\"cbc:ID\": \"2026F00023\"}, \"efac:LotTender\": {\"cbc:ID\": \"TEN-0006\"}}, {\"cbc:ID\": {\"@schemeName\": \"CON\", \"#text\": \"CON-0007\"}, \"cbc:IssueDate\": \"2026-10-07+02:00\", \"cac:SignatoryParty\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}}, \"efac:ContractReference\": {\"cbc:ID\": \"2026F00024\"}, \"efac:LotTender\": {\"cbc:ID\": \"TEN-0007\"}}, {\"cbc:ID\": {\"@schemeName\": \"CON\", \"#text\": \"CON-0008\"}, \"cbc:IssueDate\": \"2026-10-07+02:00\", \"cac:SignatoryParty\": {\"cac:PartyIdentification\": {\"cbc:ID\": \"ORG-0001\"}}, \"efac:ContractReference\": {\"cbc:ID\": \"2026F00025\"}, \"efac:LotTender\": {\"cbc:ID\": \"TEN-0008\"}}], \"efac:TenderingParty\": [{\"cbc:ID\": {\"@schemeName\": \"TPA\", \"#text\": \"TPA-0001\"}, \"efac:Tenderer\": {\"cbc:ID\": \"ORG-0004\"}}, {\"cbc:ID\": {\"@schemeName\": \"TPA\", \"#text\": \"TPA-0003\"}, \"efac:Tenderer\": {\"cbc:ID\": \"ORG-0005\"}}, {\"cbc:ID\": {\"@schemeName\": \"TPA\", \"#text\": \"TPA-0004\"}, \"efac:Tenderer\": {\"cbc:ID\": \"ORG-0003\"}}, {\"cbc:ID\": {\"@schemeName\": \"TPA\", \"#text\": \"TPA-0005\"}, \"efac:Tenderer\": {\"cbc:ID\": \"ORG-0010\"}}, {\"cbc:ID\": {\"@schemeName\": \"TPA\", \"#text\": \"TPA-0006\"}, \"efac:Tenderer\": {\"cbc:ID\": \"ORG-0008\"}}, {\"cbc:ID\": {\"@schemeName\": \"TPA\", \"#text\": \"TPA-0008\"}, \"efac:Tenderer\": {\"cbc:ID\": \"ORG-0009\"}}, {\"cbc:ID\": {\"@schemeName\": \"TPA\", \"#text\": \"TPA-0009\"}, \"efac:Tenderer\": {\"cbc:ID\": \"ORG-0006\"}}, {\"cbc:ID\": {\"@schemeName\": \"TPA\", \"#text\": \"TPA-0010\"}, \"efac:Tenderer\": {\"cbc:ID\": \"ORG-0007\"}}]}, \"efac:NoticeSubType\": {\"cbc:SubTypeCode\": {\"@listName\": \"notice-subtype\", \"#text\": \"29\"}}, \"efac:Organizations\": {\"efac:Organization\": [{\"efac:Company\": {\"cbc:WebsiteURI\": \"http://www.sieeen.fr/\", \"cac:PartyIdentification\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0001\"}}, \"cac:PartyName\": {\"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"Syndicat Intercommunal d'Energies, d'Equipement et d'Environnement de la Nièvre\"}}, \"cac:PostalAddress\": {\"cbc:StreetName\": \"7 place de la République\", \"cbc:CityName\": \"NEVERS\", \"cbc:PostalZone\": \"58000\", \"cbc:CountrySubentityCode\": {\"@listName\": \"nuts-lvl3\", \"#text\": \"FRC12\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}, \"cac:PartyLegalEntity\": {\"cbc:CompanyID\": \"25580118500018\"}, \"cac:Contact\": {\"cbc:Name\": \"Service Commande Publique\", \"cbc:Telephone\": \"+33 386597690\", \"cbc:ElectronicMail\": \"commande.publique@sieeen.fr\"}}}, {\"efac:Company\": {\"cbc:WebsiteURI\": \"http://dijon.tribunal-administratif.fr/\", \"cac:PartyIdentification\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0002…[26275 car.]",
+  "{\"EFORMS\": {\"ContractAwardNotice\": {\"ext:UBLExtensions\": {\"ext:UBLExtension\": {\"ext:ExtensionContent\": {\"efext:EformsExtension\": {\"efac:NoticeResult\": {\"cbc:TotalAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"42800000\"}, \"efac:LotResult\": {\"cbc:ID\": {\"@schemeName\": \"result\", \"#text\": \"RES-0001\"}, \"cbc:TenderResultCode\": {\"@listName\": \"winner-selection-status\", \"#text\": \"selec-w\"}, \"efac:LotTender\": {\"cbc:ID\": {\"@schemeName\": \"tender\", \"#text\": \"TEN-0001\"}}, \"efac:ReceivedSubmissionsStatistics\": [{\"efbc:StatisticsCode\": {\"@listName\": \"received-submission-type\", \"#text\": \"tenders\"}, \"efbc:StatisticsNumeric\": \"7\"}, {\"efbc:StatisticsCode\": {\"@listName\": \"received-submission-type\", \"#text\": \"t-oth-eea\"}, \"efbc:StatisticsNumeric\": \"3\"}, {\"efbc:StatisticsCode\": {\"@listName\": \"received-submission-type\", \"#text\": \"t-esubm\"}, \"efbc:StatisticsNumeric\": \"1\"}], \"efac:SettledContract\": {\"cbc:ID\": {\"@schemeName\": \"contract\", \"#text\": \"CON-0001\"}}, \"efac:TenderLot\": {\"cbc:ID\": {\"@schemeName\": \"Lot\", \"#text\": \"LOT-0000\"}}}, \"efac:LotTender\": {\"cbc:ID\": {\"@schemeName\": \"tender\", \"#text\": \"TEN-0001\"}, \"efbc:TenderVariantIndicator\": \"false\", \"cac:LegalMonetaryTotal\": {\"cbc:PayableAmount\": {\"@currencyID\": \"EUR\", \"#text\": \"42800000\"}}, \"efac:SubcontractingTerm\": {\"efbc:TermCode\": {\"@listName\": \"applicability\", \"#text\": \"not-known\"}}, \"efac:TenderingParty\": {\"cbc:ID\": {\"@schemeName\": \"tendering-party\", \"#text\": \"TPA-0001\"}}, \"efac:TenderLot\": {\"cbc:ID\": {\"@schemeName\": \"Lot\", \"#text\": \"LOT-0000\"}}, \"efac:TenderReference\": {\"cbc:ID\": \"TEN-0001\"}}, \"efac:SettledContract\": {\"cbc:ID\": {\"@schemeName\": \"contract\", \"#text\": \"CON-0001\"}, \"cbc:IssueDate\": \"2026-09-09+02:00\", \"cbc:Title\": {\"@languageID\": \"FRA\", \"#text\": \"Dijon Metropole - Lot M01 - Conception-réalisation - Modernisation des deux lignes de traitement et de récupération de l'énergie - Fours / chaudières\"}, \"efac:ContractReference\": {\"cbc:ID\": \"2025dmpn052000\"}, \"efac:LotTender\": {\"cbc:ID\": {\"@schemeName\": \"tender\", \"#text\": \"TEN-0001\"}}}, \"efac:TenderingParty\": {\"cbc:ID\": {\"@schemeName\": \"tendering-party\", \"#text\": \"TPA-0001\"}, \"efac:Tenderer\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0005\"}}}}, \"efac:NoticeSubType\": {\"cbc:SubTypeCode\": {\"@listName\": \"notice-subtype\", \"#text\": \"29\"}}, \"efac:Organizations\": {\"efac:Organization\": [{\"efac:Company\": {\"cac:PartyIdentification\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0001\"}}, \"cac:PartyName\": {\"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"Avenue-Web Systèmes\"}}, \"cac:PostalAddress\": {\"cbc:CityName\": \"Seyssinet-Pariset\", \"cbc:PostalZone\": \"38170\", \"cbc:CountrySubentityCode\": {\"@listName\": \"nuts\", \"#text\": \"FRK24\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}, \"cac:PartyLegalEntity\": {\"cbc:CompanyID\": {\"@schemeName\": \"eu\", \"#text\": \"E0DD43D6-FDE6-4B71-0E8846990173BB2A\"}}, \"cac:Contact\": {\"cbc:Telephone\": \"+33480041260\", \"cbc:ElectronicMail\": \"publications-joue@aws-france.com\"}}}, {\"efac:Company\": {\"cbc:WebsiteURI\": \"https://www.metropole-dijon.fr\", \"cac:PartyIdentification\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0002\"}}, \"cac:PartyName\": {\"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"Dijon Métropole\"}}, \"cac:PostalAddress\": {\"cbc:StreetName\": \"40 Avenue du Drapeau\", \"cbc:AdditionalStreetName\": \"Cs 17510\", \"cbc:CityName\": \"Dijon\", \"cbc:PostalZone\": \"21075\", \"cbc:CountrySubentityCode\": {\"@listName\": \"nuts\", \"#text\": \"FRC11\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}, \"cac:PartyLegalEntity\": {\"cbc:CompanyID\": {\"@schemeName\": \"eu\", \"#text\": \"58458\"}}, \"cac:Contact\": {\"cbc:Name\": \"le Président\", \"cbc:Telephone\": \"0380745172\", \"cbc:ElectronicMail\": \"correspondre@aws-france.com\"}}}, {\"efac:Company\": {\"cac:PartyIdentification\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0003\"}}, \"cac:PartyName\": {\"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"DIJON METROPOLE\"}}, \"cac:PostalAddress\": {\"cbc:CityName\": \"Dijon\", \"cbc:PostalZone\": \"21000\", \"cbc:CountrySubentityCode\": {\"@listName\": \"nuts\", \"#text\": \"FRC11\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}, \"cac:PartyLegalEntity\": {\"cbc:CompanyID\": {\"@schemeName\": \"eu\", \"#text\": \"2021614\"}}, \"cac:Contact\": {\"cbc:Name\": \"Service Commande publique et Stratégie achat\", \"cbc:Telephone\": \"0380745172\", \"cbc:ElectronicMail\": \"marches-publics@metropole-dijon.fr\"}}}, {\"efac:Company\": {\"cac:PartyIdentification\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0004\"}}, \"cac:PartyName\": {\"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"Tribunal administratif de Dijon\"}}, \"cac:PostalAddress\": {\"cbc:Postbox\": \"61616\", \"cbc:StreetName\": \"22 rue d'Assas\", \"cbc:CityName\": \"Dijon\", \"cbc:PostalZone\": \"21016\", \"cbc:CountrySubentityCode\": {\"@listName\": \"nuts\", \"#text\": \"FRC11\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}, \"cac:PartyLegalEntity\": {\"cbc:CompanyID\": {\"@schemeName\": \"eu\", \"#text\": \"E0DD4440-BFED-A83D-CE8A1AA5CB3B0582\"}}, \"cac:Contact\": {\"cbc:Telephone\": \"0380739100\", \"cbc:Telefax\": \"0380733989\", \"cbc:ElectronicMail\": \"greffe.ta-dijon@juradm.fr\"}}}, {\"efbc:ListedOnRegulatedMarketIndicator\": \"false\", \"efac:UltimateBeneficialOwner\": {\"cbc:ID\": {\"@schemeName\": \"ubo\", \"#text\": \"UBO-0005\"}}, \"efac:Company\": {\"efbc:CompanySizeCode\": {\"@listName\": \"economic-operator-size\", \"#text\": \"large\"}, \"cac:PartyIdentification\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0005\"}}, \"cac:PartyName\": {\"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"Kanadevia Inova AG\"}}, \"cac:PostalAddress\": {\"cbc:StreetName\": \"Hardturmstrasse 127\", \"cbc:CityName\": \"Zürich\", \"cbc:PostalZone\": \"8005\", \"cbc:CountrySubentityCode\": {\"@listName\": \"nuts\", \"#text\": \"FRE23\"}, \"cac:Country\": {\"cbc:IdentificationCode\": {\"@listName\": \"country\", \"#text\": \"FRA\"}}}, \"cac:PartyLegalEntity\": {\"cbc:CompanyID\": {\"@schemeName\": \"eu\", \"#text\": \"1728987-1-0-1\"}}}}], \"efac:UltimateBeneficialOwner\": {\"cbc:ID\": {\"@schemeName\": \"ubo\", \"#text\": \"UBO-0005\"}, \"efac:Nationality\": {\"cbc:NationalityID\": \"FRA\"}}}}}}}, \"cbc:UBLVersionID\": \"2.3\", \"cbc:CustomizationID\": \"eforms-sdk-1.12\", \"cbc:ID\": {\"@schemeName\": \"notice-id\", \"#text\": \"6c125480-7724-46a4-a832-b65430674ca7\"}, \"cbc:ContractFolderID\": \"97e5d9a7-b128-48af-bece-9d041f3646d2\", \"cbc:IssueDate\": \"2026-10-07+02:00\", \"cbc:IssueTime\": \"15:10:22+02:00\", \"cbc:VersionID\": \"01\", \"cbc:RegulatoryDomain\": \"32014L0024\", \"cbc:NoticeTypeCode\": {\"@listName\": \"result\", \"#text\": \"can-standard\"}, \"cbc:NoticeLanguageCode\": \"FRA\", \"cac:ContractingParty\": {\"cbc:BuyerProfileURI\": \"http://www.marches-publics.info/\", \"cac:ContractingPartyType\": {\"cbc:PartyTypeCode\": {\"@listName\": \"buyer-legal-type\", \"#text\": \"la\"}}, \"cac:ContractingActivity\": {\"cbc:ActivityTypeCode\": {\"@listName\": \"authority-activity\", \"#text\": \"gen-pub\"}}, \"cac:Party\": {\"cac:PartyIdentification\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0002\"}}, \"cac:ServiceProviderParty\": {\"cbc:ServiceTypeCode\": {\"@listName\": \"organisation-role\", \"#text\": \"ted-esen\"}, \"cac:Party\": {\"cac:PartyIdentification\": {\"cbc:ID\": {\"@schemeName\": \"organization\", \"#text\": \"ORG-0001\"}}}}}}, \"cac:TenderingProcess\": {\"cbc:ProcedureCode\": {\"@languageID\": \"FRA\", \"@listName\": \"procurement-procedure-type\", \"#text\": \"neg-w-call\"}, \"cac:ProcessJustification\": {\"cbc:ProcessReasonCode\": {\"@listName\": \"accelerated-procedure\", \"#text\": \"false\"}}}, \"cac:ProcurementProject\": {\"cbc:ID\": \"2025DMPN0520\", \"cbc:Name\": {\"@languageID\": \"FRA\", \"#text\": \"DIJON METROPOLE - Lot M01 - Conception-réalisation - Modernisation des deux lignes de traitement et de récupération de l'énergie - Fours / chaudières\"}, \"cbc:Description\": {\"@languageID\": \"FRA\", \"#text\": \"Modernisation de l'UVE de Dijon métropole - lot M01 - Modernisation des deux lignes de traitement et de récupération de l'énergie (four/chaudières) - ligne 2 bis neuve et ligne 1 modernisée\"}, \"cbc:ProcurementTypeCode\": {\"@listName\": \"contract-nature\", \"#text\": \"works\"}, \"cac:MainCommodityClassification\": {\"cbc:ItemClassificationCode\": {\"@listName\": \"cpv\", \"#text\": \"45252300\"}}, \"cac:AdditionalCommodityClassification\": [{\"cbc:ItemClassificationCode\": {\"@listName\": \"cpv\", \"#text\": \"42164000\"}}, {\"cbc:ItemClassificationCode\": {\"@listName\": \"cpv\", \"#text\": \"42310000\"}}, {\"cbc:ItemClassificationCode\": {\"@listName\": \"cpv\", \"#text\": \"42320000\"}}]}, \"cac:ProcurementProjectLot\": {\"cbc:ID\": {\"@schemeName\": \"Lot\", \"#text\": \"LOT-0000\"}, \"cac:TenderingTerms\": {\"cbc:FundingProgramCode\": {\"@listName\": \"eu-funded\", \"#text\": \"no-eu-funds\"}, \"cac:AwardingTerms\": {\"cac:AwardingCriterion\": {\"cac:SubordinateAwardingCriterion\": [{\"ext:UBLExtensions\": {\"ext:UBLExtension\": {\"ext:ExtensionContent\": {\"efext:EformsExtension\": {\"efac:AwardCriterionParameter\": {\"efbc:ParameterCode\": {\"@listName\": \"number-weight\", \"#text\": \"per-exa\"}, \"efbc:ParameterNumeric\": \"25\"}}}}}, \"cbc:AwardingCriterionTypeCode\": {\"@listName\": \"award-criterion-type\", \"#text\": \"quality\"}, \"cbc:Descriptio…[14977 car.]"
+ ],
+ "volume_attributions_24_mois": {
+  "total_count": 2532,
+  "results": [
+   {
+    "n": 2532
+   },
+   {
+    "n": 2532
+   },
+   {
+    "n": 2532
+   },
+   {
+    "n": 2532
+   },
+   {
+    "n": 2532
+   },
+   {
+    "n": 2532
+   },
+   {
+    "n": 2532
+   },
+   {
+    "n": 2532
+   },
+   {
+    "n": 2532
+   },
+   {
+    "n": 2532
+   }
+  ]
+ },
+ "volume_avec_titulaire": {
+  "total_count": 1674,
+  "results": [
+   {
+    "n": 1674
+   },
+   {
+    "n": 1674
+   },
+   {
+    "n": 1674
+   },
+   {
+    "n": 1674
+   },
+   {
+    "n": 1674
+   },
+   {
+    "n": 1674
+   },
+   {
+    "n": 1674
+   },
+   {
+    "n": 1674
+   },
+   {
+    "n": 1674
+   },
+   {
+    "n": 1674
+   }
+  ]
+ }
+}
