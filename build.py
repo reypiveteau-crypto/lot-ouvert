@@ -186,7 +186,7 @@ def page(chemin, titre, desc, corps, index=True, fil=(), large=False):
 <link rel="stylesheet" href="{rel}style.css"></head><body>
 <a class="saut" href="#contenu">Aller au contenu</a>
 <header class="tete"><div class="cadre"><a class="marque" href="{rel or './'}"><span class="pastille" aria-hidden="true"></span>{SITE}</a>
-<nav aria-label="Navigation principale"><a href="{rel}#departements">Départements</a><a href="{rel}metiers/">Métiers</a><a href="{rel}a-propos/">À propos</a>{f'<a class="inscrire" href="{rel}inscription/">Alertes gratuites</a>' if ALERTES else ''}</nav></div></header>
+<nav aria-label="Navigation principale"><a href="{rel}#departements">Départements</a><a href="{rel}metiers/">Métiers</a><a href="{rel}pro/">Version Pro</a><a href="{rel}a-propos/">À propos</a>{f'<a class="inscrire" href="{rel}inscription/">Alertes gratuites</a>' if ALERTES else ''}</nav></div></header>
 <main id="contenu" class="cadre{' large' if large else ''}">{f'<nav class="fil" aria-label="Fil d’Ariane">{crumbs}</nav>' if crumbs else ''}
 {corps}
 </main>
@@ -255,9 +255,14 @@ def texte_libre(t):
     return "<br>".join(E(x.strip()) for x in t.split("\n") if x.strip())
 
 
-def ligne_resultat(r):
+def nom_lie(g, rel):
+    k = slug(g)
+    return f'<a href="{rel}entreprise/{k}/">{E(g)}</a>' if k in FICHES else E(g)
+
+
+def ligne_resultat(r, rel="../../"):
     if r["gagnants"]:
-        qui = f"<p class=\"gagne\">Attribué à <b>{E(', '.join(r['gagnants'][:6]))}</b>{' et d’autres entreprises' if len(r['gagnants']) > 6 else ''}</p>"
+        qui = f"<p class=\"gagne\">Attribué à <b>{', '.join(nom_lie(g, rel) for g in r['gagnants'][:6])}</b>{' et d’autres entreprises' if len(r['gagnants']) > 6 else ''}</p>"
     elif r["texte"]:
         qui = f"<p class=\"gagne libre\">{texte_libre(r['texte'])}</p>"
     else:
@@ -287,7 +292,7 @@ def bloc_classement(c, s, m, prep):
     if not compte:
         return ""
     top = sorted(compte, key=lambda k: (-compte[k], forme[k]))[:10]
-    lignes = "".join(f"<tr><td>{E(forme[k])}</td><td class='n'>{compte[k]}</td><td>{E(dernier[k]['acheteur'])}, {MOIS_C[dernier[k]['paru'].month - 1]} {dernier[k]['paru'].year}</td></tr>" for k in top)
+    lignes = "".join(f"<tr><td>{nom_lie(forme[k], '../../')}</td><td class='n'>{compte[k]}</td><td>{E(dernier[k]['acheteur'])}, {MOIS_C[dernier[k]['paru'].month - 1]} {dernier[k]['paru'].year}</td></tr>" for k in top)
     offres = [r["offres"][0] for r in res if r["offres"]]
     stat = ""
     if len(offres) >= 3:
@@ -355,7 +360,7 @@ def page_avis(a, metiers, dslug):
 <p class="f-date">À remettre avant le <b>{fr(a['limite'])}</b></p>
 {f'<a class="bouton" href="{E(d["dossier"])}" rel="nofollow noopener">Télécharger le dossier</a><p class="note">Les documents à lire et à remplir pour répondre, sur la plateforme de l’acheteur.</p>' if d.get('dossier') else ''}
 {f'<a class="bouton second" href="../../inscription/?m={slug(a["metiers"][0])}&amp;d={a["deps"][0]}">Être prévenu des prochaines annonces</a><p class="note">Alerte gratuite par e-mail pour ce métier et ce département.</p>' if ALERTES and a["metiers"] and a["deps"] else ''}
-<a class="bouton second" href="{E(a['url'])}" rel="nofollow noopener">Lire l'avis officiel</a><p class="note">Avis n° {E(a['id'])} sur boamp.fr{f", publié le {fr(a['paru'])}" if a['paru'] else ''}.</p></aside>
+<a class="bouton second" href="{E(a['url'])}" rel="nofollow noopener">Lire l'avis officiel</a><p class="note">Avis n° {E(a['id'])} sur boamp.fr{f", publié le {fr(a['paru'])}" if a['paru'] else ''}.</p><p class="pro-mini"><a href="../../pro/">Version Pro, bientôt disponible</a><span>Historique complet, suivi des concurrents, alertes quotidiennes.</span></p></aside>
 <div class="f-corps">
 <section class="bloc"><h2>L'essentiel de l'annonce</h2><dl class="essentiel">{essentiel}</dl></section>
 <section class="bloc"><h2>Ce que cet acheteur a déjà attribué</h2>{histo}</section>
@@ -364,6 +369,94 @@ def page_avis(a, metiers, dslug):
 </div></div>"""
     fil = [("Accueil", "")] + ([(DEPS[a["deps"][0]][0], f"{dslug[a['deps'][0]]}/")] if a["deps"] else [])
     page(f"avis/{a['id']}", f"{court(a['objet'])} | {SITE}", court(f"{a['acheteur']} : à remettre avant le {fr(a['limite'])}. L'essentiel de l'annonce, le dossier à télécharger et les marchés déjà attribués par cet acheteur.", 158), corps, fil=fil, large=True)
+
+
+# Une fiche n'est créée que pour une entreprise, jamais pour une personne : un nom qui contient un prénom courant
+# et aucune forme de société est écarté.
+SOCIETE = set("sarl sas sasu sa eurl sci scop scp selarl snc gie ei eirl ste societe ets etablissement etablissements entreprise entreprises groupe group "
+              "association asso cabinet agence atelier ateliers bureau compagnie cie france services service travaux batiment tp btp conseil conseils "
+              "formation institut centre chambre mutuelle assurance assurances banque caisse cooperative coop holding international industrie industries "
+              "ingenierie architecture architectes paysage transports transport energie energies environnement solutions systemes distribution "
+              "construction constructions menuiserie peinture electricite plomberie maconnerie nettoyage proprete restauration imprimerie garage "
+              "laboratoire laboratoires pharmacie clinique hopital mairie commune region departement syndicat universite lycee college greta afpa".split())
+PRENOMS = set("adrien agnes alain albert alexandre alexis alice aline amandine andre anne annie anthony antoine arnaud arthur audrey aurelie aurelien "
+              "baptiste benjamin benoit bernard bertrand brigitte bruno camille carole caroline catherine cecile cedric celine chantal charles charlotte "
+              "christelle christian christiane christine christophe claire claude claudine clement colette corinne cyril damien daniel danielle david "
+              "delphine denis denise didier dominique edouard elisabeth elise elodie emilie emmanuel emmanuelle eric estelle etienne eugenie evelyne "
+              "fabien fabrice fabienne florence florent florian francis franck francois francoise frederic frederique gabriel gael genevieve geoffrey "
+              "georges gerald gerard ghislaine gilbert gilles guillaume guy helene henri herve hugo isabelle jacqueline jacques jean jeanne jeremie "
+              "jeremy jerome joel joelle jonathan joseph josiane julie julien juliette justine karine kevin laetitia laure laurence laurent lea leon "
+              "lionel loic louis louise luc lucas lucie lucien ludovic madeleine marc marcel marguerite marie marine marion martine mathieu mathilde "
+              "matthieu maurice maxime melanie michel michele micheline mickael monique muriel myriam nadine nathalie nicolas nicole noel odile olivier "
+              "pascal pascale patrice patricia patrick paul paulette pauline philippe pierre quentin raphael raymond regis remi remy rene renee richard "
+              "robert roger roland romain samuel sandra sandrine sebastien serge simon simone solange sophie stephane stephanie suzanne sylvain sylvie "
+              "theo thierry thomas valerie veronique victor vincent virginie xavier yann yannick yves yvette yvonne".split())
+
+
+def est_entreprise(nom):
+    mots = slug(nom).split("-")
+    return bool(set(mots) & SOCIETE) or not (set(mots) & PRENOMS)
+
+
+PRO_PLUS = [
+    ("L'historique complet de chaque acheteur", "Tous ses marchés attribués sur plusieurs années, et non plus les derniers seulement."),
+    ("Le suivi de vos concurrents", "Pour chaque entreprise : les marchés remportés, chez quels acheteurs, dans quels métiers. Avec une alerte quand un concurrent gagne un marché."),
+    ("Des alertes chaque matin", "Sur plusieurs métiers et plusieurs départements à la fois, au lieu d'une alerte par semaine sur un seul métier."),
+    ("Des alertes par acheteur", "Vous êtes prévenu dès qu'une mairie, un hôpital ou une collectivité que vous suivez publie une annonce."),
+    ("Des rappels avant la date limite", "Un e-mail sept jours puis deux jours avant l'échéance des annonces que vous avez mises de côté."),
+]
+
+
+def page_pro():
+    plus = "".join(f"<li><b>{E(t)}</b><span>{E(d)}</span></li>" for t, d in PRO_PLUS)
+    attente = f"""<form class="alerte attente" novalidate><h2>Être prévenu de l'ouverture</h2>
+<p class="intro">Laissez votre adresse : vous recevrez un seul e-mail, le jour où la version Pro ouvre.</p>
+<div class="champ"><label for="al-email">Votre adresse e-mail</label><input id="al-email" name="email" type="email" autocomplete="email" required>
+<input name="site" type="text" tabindex="-1" autocomplete="off" class="pot" aria-hidden="true"><button type="submit" class="bouton">Prévenez-moi</button></div>
+<p class="etat" role="status"></p><p class="note">Sans engagement et sans paiement. Un e-mail de confirmation vous est envoyé dans l'heure.</p></form>""" if ALERTES else ""
+    page("pro", f"Version Pro, bientôt disponible | {SITE}", f"La version Pro de {SITE} : historique complet des acheteurs, suivi des concurrents, alertes quotidiennes. Bientôt disponible.",
+         f"""<div class="pro-tete"><p class="etiquette">Bientôt disponible</p><h1>La version Pro, pour décider vite si un marché vaut le coup</h1>
+<p class="intro">Répondre à un marché public prend des jours. La version Pro vous dit avant de commencer qui détient le marché aujourd'hui, combien d'entreprises répondent d'habitude, et vous prévient au bon moment.</p></div>
+<div class="pro-grille"><section class="bloc"><h2>Ce que la version Pro ajoute</h2><ul class="pro-plus">{plus}</ul></section>
+<aside class="pro-cote"><div class="prix"><b>9 €</b><span>par mois, prix envisagé, sans engagement</span></div>
+<p class="note">Le prix et la date d'ouverture ne sont pas encore fixés. Aucun paiement n'est possible pour le moment.</p>{attente}</aside></div>
+<section class="bloc"><h2>Ce qui reste gratuit</h2><p class="intro">La liste des annonces par métier et par département, l'essentiel de chaque annonce, le lien vers le dossier à télécharger et une alerte par semaine. Pendant le lancement, l'historique des acheteurs et les fiches des entreprises retenues sont aussi en accès libre.</p></section>""",
+         fil=[("Accueil", "")])
+
+
+def pages_entreprises(resultats, metiers):
+    """Une fiche par entreprise retenue au moins deux fois : ce qu'elle a gagné, chez qui, dans quels métiers."""
+    par = defaultdict(list)
+    forme = {}
+    for r in resultats:
+        for g in r["gagnants"]:
+            par[slug(g)].append(r)
+            forme.setdefault(slug(g), g)
+    for k in FICHES:
+        res = sorted(par[k], key=lambda r: r["paru"], reverse=True)
+        nom = forme[k]
+        ach, met, dep = defaultdict(int), defaultdict(int), defaultdict(int)
+        for r in res:
+            ach[r["acheteur"]] += 1
+            for m in r["metiers"]:
+                if m in metiers:
+                    met[m] += 1
+            for c in r["deps"]:
+                dep[c] += 1
+        top_a = "".join(f"<li><span>{E(a)}</span><b>{n}</b></li>" for a, n in sorted(ach.items(), key=lambda x: -x[1])[:8])
+        top_m = "".join(f"<li>{E(metiers[m])}</li>" for m, _ in sorted(met.items(), key=lambda x: -x[1])[:10])
+        top_d = ", ".join(DEPS[c][0] for c, _ in sorted(dep.items(), key=lambda x: -x[1]))
+        lignes = "".join(f"""<li class="res"><span class="quand">{MOIS_C[r['paru'].month - 1]} {r['paru'].year}</span><div><a href="{E(r['url'])}" rel="nofollow noopener">{E(r['objet'])}</a>
+<p class="gagne">{E(r['acheteur'])}{' avec ' + ', '.join(nom_lie(g, '../../') for g in r['gagnants'][:5] if slug(g) != k) if len(r['gagnants']) > 1 else ''}</p></div></li>""" for r in res[:40])
+        corps = f"""<p class="etiquette">Fonction Pro, en accès libre pendant le lancement</p>
+<h1>{E(nom)}</h1>
+<p class="intro">{len(res)} marchés publics remportés en {REGION} depuis 24 mois, d'après les résultats publiés au Bulletin officiel{', ' + E(top_d) if top_d else ''}.</p>
+<div class="deux"><section class="bloc"><h2>Ses acheteurs</h2><ul class="compteurs">{top_a}</ul></section>
+{f'<section class="bloc"><h2>Ses métiers</h2><ul class="puces">{top_m}</ul></section>' if top_m else ''}</div>
+<section class="bloc"><h2>Les marchés remportés</h2><ul class="resultats">{lignes}</ul>
+{f'<p class="note">Les 40 plus récents sur {len(res)} sont affichés.</p>' if len(res) > 40 else ''}
+<p class="note">Entreprise identifiée par le nom publié dans les résultats : deux entreprises homonymes peuvent être confondues, et une même entreprise peut apparaître sous plusieurs écritures. Tous les marchés attribués ne sont pas publiés. Une erreur ou une demande de retrait : voir la page À propos.</p></section>"""
+        page(f"entreprise/{k}", f"{court(nom, 50)} : marchés publics remportés | {SITE}", court(f"Les marchés publics remportés par {nom} en {REGION} depuis 24 mois : acheteurs, métiers et résultats publiés.", 158), corps, fil=[("Accueil", "")])
 
 
 def BANDEAU(rel, m="", d=""):
@@ -480,6 +573,21 @@ th,td{text-align:left;padding:.55rem .9rem;border-top:1px solid var(--trait);ver
 .n{text-align:right;font-variant-numeric:tabular-nums}td.n{font-weight:600}
 .rubriques{display:flex;flex-wrap:wrap;gap:.5rem}.rubriques a{background:var(--carte);border:1px solid var(--trait);padding:.4rem .8rem;border-radius:99px;text-decoration:none;font-weight:500}
 
+/* version pro et fiches entreprises */
+.etiquette{align-self:flex-start;display:inline-block;background:var(--jaune);color:var(--sur-jaune);font-weight:600;font-size:.9rem;padding:.15rem .6rem}
+.pro-tete{display:flex;flex-direction:column;gap:.9rem;max-width:50rem}
+.pro-grille{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,23rem);gap:2.5rem;align-items:start}
+.pro-plus{list-style:none;margin:0;padding:0;background:var(--carte);border:1px solid var(--trait)}
+.pro-plus li{display:flex;flex-direction:column;gap:.15rem;padding:.9rem 1.1rem;border-top:1px solid var(--trait)}.pro-plus li:first-child{border-top:0}
+.pro-plus b{font-weight:600}.pro-plus span{color:var(--doux);font-size:.97rem}
+.pro-cote{display:flex;flex-direction:column;gap:.9rem}.prix{background:var(--encre);color:var(--fond);padding:1.1rem 1.3rem;display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap}
+.prix b{font:700 3.2rem/1 var(--titre)}.prix span{font-size:.95rem;opacity:.85}
+.pro-mini{border-top:1px solid var(--trait);padding-top:.7rem;margin-top:.3rem;display:flex;flex-direction:column;gap:.1rem;font-size:.9rem}.pro-mini a{font-weight:600}.pro-mini span{color:var(--doux)}
+.deux{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2rem;align-items:start}
+.compteurs{list-style:none;margin:0;padding:0;background:var(--carte);border:1px solid var(--trait)}
+.compteurs li{display:flex;justify-content:space-between;gap:1rem;padding:.5rem .9rem;border-top:1px solid var(--trait)}.compteurs li:first-child{border-top:0}.compteurs b{font-weight:600}
+.alerte.attente{display:flex;flex-direction:column;gap:.6rem}.alerte.attente h2{font-size:1.4rem}
+@media (max-width:56rem){.pro-grille,.deux{grid-template-columns:minmax(0,1fr)}}
 /* alertes */
 .tete nav .inscrire{background:var(--jaune);color:var(--sur-jaune);padding:.35rem .8rem;border-radius:3px;font-weight:600}
 .bandeau-alerte{display:flex;gap:1rem 2rem;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--encre);color:var(--fond);padding:1.1rem 1.3rem}
@@ -551,7 +659,7 @@ if(fm){var items=[].slice.call(document.querySelectorAll(".liens li"));items.for
 })();"""
 
 
-MENTION_ALERTES = ("Si vous créez une alerte, votre adresse e-mail est enregistrée avec le métier et le département choisis, dans le seul but de vous envoyer cette alerte. "
+MENTION_ALERTES = ("Si vous créez une alerte ou demandez à être prévenu de l'ouverture de la version Pro, votre adresse e-mail est enregistrée, avec le métier et le département choisis le cas échéant, dans le seul but de vous envoyer ces messages. "
     "Elle est stockée chez Supabase et les e-mails partent par Brevo. Elle est supprimée dès que vous vous désinscrivez, et au bout de 7 jours si vous ne confirmez pas l'inscription."
     + (f" Pour toute demande concernant vos données : {E(CONFIG['contact_email'])}." if CONFIG.get("contact_email") else ""))
 
@@ -561,7 +669,8 @@ document.querySelectorAll("form.alerte").forEach(function(f){
   f.addEventListener("submit",function(e){
     e.preventDefault();
     var etat=f.querySelector(".etat"),email=f.email.value.trim().toLowerCase();
-    var dep=f.dataset.dep||(f.dep?f.dep.value:""),metier=f.dataset.metier||(f.metier?f.metier.value:"");
+    var pro=f.classList.contains("attente");
+    var dep=pro?"00":(f.dataset.dep||(f.dep?f.dep.value:"")),metier=pro?"version-pro":(f.dataset.metier||(f.metier?f.metier.value:""));
     if(!metier){etat.textContent="Choisissez votre métier dans la liste.";f.metier.focus();return;}
     if(!dep){etat.textContent="Choisissez votre département dans la liste.";f.dep.focus();return;}
     if(f.site.value){return;}
@@ -570,8 +679,8 @@ document.querySelectorAll("form.alerte").forEach(function(f){
     fetch(URL+"/rest/v1/lo_abonnes",{method:"POST",headers:Object.assign({"Prefer":"return=minimal"},H),
       body:JSON.stringify({email:email,dep:dep,metier:metier})})
     .then(function(r){
-      if(r.status===201){etat.textContent="C'est noté. Un e-mail de confirmation vous sera envoyé dans l'heure : cliquez sur son lien pour activer l'alerte.";f.email.value="";}
-      else if(r.status===409){etat.textContent="Cette adresse est déjà inscrite à cette alerte.";}
+      if(r.status===201){etat.textContent=pro?"C'est noté. Un e-mail de confirmation vous sera envoyé dans l'heure : cliquez sur son lien pour valider votre demande.":"C'est noté. Un e-mail de confirmation vous sera envoyé dans l'heure : cliquez sur son lien pour activer l'alerte.";f.email.value="";}
+      else if(r.status===409){etat.textContent=pro?"Cette adresse est déjà sur la liste.":"Cette adresse est déjà inscrite à cette alerte.";}
       else{etat.textContent="L'inscription n'a pas fonctionné. Réessayez dans quelques minutes.";}
     }).catch(function(){etat.textContent="Connexion impossible. Vérifiez votre réseau et réessayez.";});
   });
@@ -585,7 +694,7 @@ if(a){
   fetch(URL+"/rest/v1/rpc/"+(conf?"lo_confirmer":"lo_desinscrire"),{method:"POST",headers:H,body:JSON.stringify({t:t})})
   .then(function(r){return r.ok?r.json():Promise.reject();})
   .then(function(v){
-    if(conf){a.textContent=v?"Votre alerte est active. Vous recevrez un e-mail quand un nouvel avis paraîtra.":"Ce lien n'est plus valable : l'inscription a expiré ou a été supprimée.";}
+    if(conf){a.textContent=v?"C'est confirmé. Vous recevrez nos e-mails à cette adresse.":"Ce lien n'est plus valable : l'inscription a expiré ou a été supprimée.";}
     else{a.textContent=v?"Vous êtes désinscrit. Votre adresse a été supprimée.":"Cette alerte était déjà supprimée.";}
   }).catch(function(){a.textContent="L'opération n'a pas abouti. Réessayez dans quelques minutes.";});
 }
@@ -593,7 +702,7 @@ if(a){
 
 
 def main():
-    global TODAY, SITEMAP, HIST, RES_COMBO
+    global TODAY, SITEMAP, HIST, RES_COMBO, FICHES
     TODAY = dt.datetime.now(dt.timezone(dt.timedelta(hours=1))).date()
     SITEMAP = []
     brut = fetch(TODAY - dt.timedelta(days=JOURS))
@@ -621,6 +730,11 @@ def main():
         for c in r["deps"]:
             for m in r["metiers"]:
                 RES_COMBO[(c, m)].append(r)
+    nb = defaultdict(int)
+    for r in resultats:
+        for g in r["gagnants"]:
+            nb[slug(g)] += 1
+    FICHES = {k for k, n in nb.items() if n >= 2 and len(k) >= 3 and est_entreprise(k)}
     HIST = {}
     for a in ouverts:
         h = {r["id"]: r for r in (par_siret.get(a["siret"], []) if a["siret"] else []) + par_nom.get(slug(a["acheteur"]), [])}
@@ -723,6 +837,8 @@ def main():
 
     for a in ouverts:
         page_avis(a, metiers, dslug)
+    pages_entreprises(resultats, metiers)
+    page_pro()
 
     # métiers (région)
     for s in tri_met:
@@ -741,7 +857,7 @@ def main():
          f"""<h1>À propos de {SITE}</h1>
 <section class="bloc"><h2>À quoi sert ce site</h2><p class="intro">Quand une mairie, une école ou un hôpital a besoin de travaux, d'un service ou de fournitures, il publie une annonce et toute entreprise peut proposer ses services. {SITE} range ces annonces par métier et par département, et ajoute à chacune ce que l'acheteur a déjà attribué par le passé.</p></section>
 <section class="bloc"><h2>D'où viennent les données</h2><p class="intro">Les annonces et les résultats de marché affichés proviennent des données ouvertes du Bulletin officiel des annonces des marchés publics (BOAMP), diffusées par la Direction de l'information légale et administrative (DILA). Ils sont récupérés une fois par jour. Le site ne modifie pas leur contenu : les montants, critères, lots, entreprises retenues et nombres d'offres sont repris tels que l'acheteur les a publiés, et restent absents quand l'avis ne les donne pas.</p>
-<p class="intro">Les marchés d'un même acheteur sont rapprochés par son numéro SIRET ou, à défaut, par son nom exact : l'historique peut donc être incomplet. Tous les marchés publics ne sont pas publiés au BOAMP. Un avis peut avoir été rectifié ou annulé depuis la dernière mise à jour : vérifiez toujours l'avis officiel sur boamp.fr avant de répondre.</p></section>
+<p class="intro">Les marchés d'un même acheteur sont rapprochés par son numéro SIRET ou, à défaut, par son nom exact : l'historique peut donc être incomplet. Les fiches d'entreprises reprennent les noms publiés dans les résultats officiels ; aucune fiche n'est créée pour une personne. Tous les marchés publics ne sont pas publiés au BOAMP. Un avis peut avoir été rectifié ou annulé depuis la dernière mise à jour : vérifiez toujours l'avis officiel sur boamp.fr avant de répondre.</p></section>
 <section class="bloc"><h2>Mentions légales</h2><p class="intro">Site édité à titre personnel, sans publicité. {MENTION_ALERTES if ALERTES else "Aucune donnée personnelle n'est collectée."} Hébergement : GitHub Pages, GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p></section>""",
          fil=[("Accueil", "")])
 
@@ -772,7 +888,7 @@ def main():
         + "".join(f"<url><loc>{E(u)}</loc><lastmod>{TODAY.isoformat()}</lastmod></url>\n" for u in SITEMAP) + "</urlset>\n", encoding="utf-8")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n")
     Path("data").mkdir(exist_ok=True)
-    Path("data/etat.json").write_text(json.dumps({"date": TODAY.isoformat(), "recus": len(brut), "retenus": len(tous), "ouverts": len(ouverts), "resultats": len(resultats), "avec_historique": len(HIST), "pages_indexables": len(SITEMAP)}, indent=1) + "\n")
+    Path("data/etat.json").write_text(json.dumps({"date": TODAY.isoformat(), "recus": len(brut), "retenus": len(tous), "ouverts": len(ouverts), "resultats": len(resultats), "avec_historique": len(HIST), "fiches_entreprises": len(FICHES), "pages_indexables": len(SITEMAP)}, indent=1) + "\n")
     print(f"[site] {len(SITEMAP)} pages indexables écrites dans {OUT}/")
 
 

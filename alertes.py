@@ -48,6 +48,22 @@ def confirmations():
     for r in rangs:
         lien = f"{BASE}/alerte/confirmer/?t={r['token']}"
         nom = r["metier"].replace("-", " ")
+        if r["metier"] == "version-pro":      # liste d'attente de la version Pro
+            texte = (f"Bonjour,\n\nVous avez demandé à être prévenu de l'ouverture de la version Pro de Lot Ouvert.\n\n"
+                     f"Pour valider votre demande, ouvrez ce lien :\n{lien}\n\nVous recevrez ensuite un seul e-mail, le jour de l'ouverture. "
+                     "Si cette demande ne vient pas de vous, ignorez ce message : sans confirmation, l'adresse est supprimée au bout de 7 jours.")
+            h = ("<p>Bonjour,</p><p>Vous avez demandé à être prévenu de l'ouverture de la version Pro de Lot Ouvert.</p>"
+                 f'<p><a href="{html.escape(lien)}" style="background:#1c3fa8;color:#fff;padding:10px 16px;text-decoration:none;border-radius:3px;display:inline-block">Valider ma demande</a></p>'
+                 "<p>Vous recevrez ensuite un seul e-mail, le jour de l'ouverture. Si cette demande ne vient pas de vous, ignorez ce message : sans confirmation, l'adresse est supprimée au bout de 7 jours.</p>")
+            try:
+                envoyer(r["email"], "Confirmez votre demande : version Pro de Lot Ouvert", texte, h, r["token"])
+                n += 1
+            except urllib.error.HTTPError as e:
+                print(f"[confirmations] envoi refusé ({e.code}) : {e.read()[:200]!r}")
+                if e.code in (401, 403, 429):
+                    break
+            sb("PATCH", f"lo_abonnes?id=eq.{r['id']}", {"confirmation_envoyee_le": dt.datetime.now(dt.timezone.utc).isoformat()})
+            continue
         texte = (f"Bonjour,\n\nVous avez demandé à recevoir les nouveaux appels d'offres « {nom} » {lieu(r['dep'])}.\n\n"
                  f"Pour activer cette alerte, ouvrez ce lien :\n{lien}\n\nSi cette demande ne vient pas de vous, ignorez ce message : sans confirmation, l'adresse est supprimée au bout de 7 jours.")
         h = (f"<p>Bonjour,</p><p>Vous avez demandé à recevoir les nouveaux appels d'offres « {html.escape(nom)} » {html.escape(lieu(r['dep']))}.</p>"
@@ -76,7 +92,7 @@ def hebdo():
     if not ouverts:
         sys.exit("Aucun avis récupéré : aucun e-mail envoyé.")
     semaine = (today - dt.timedelta(days=7)).isoformat()
-    rangs = sb("GET", f"lo_abonnes?confirme=is.true&or=(dernier_envoi.is.null,dernier_envoi.lte.{semaine})&select=id,email,dep,metier,token,dernier_envoi&order=dernier_envoi.nullsfirst&limit=2000") or []
+    rangs = sb("GET", f"lo_abonnes?confirme=is.true&metier=neq.version-pro&or=(dernier_envoi.is.null,dernier_envoi.lte.{semaine})&select=id,email,dep,metier,token,dernier_envoi&order=dernier_envoi.nullsfirst&limit=2000") or []
     n = 0
     for r in rangs:
         if n >= MAX_HEBDO:
