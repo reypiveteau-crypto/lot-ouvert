@@ -11,7 +11,8 @@ SITE = "Lot Ouvert"
 BASE = os.environ.get("SITE_URL", "https://example.github.io/lot-ouvert").rstrip("/")
 OUT = Path("_site")
 JOURS = 75            # fenêtre de publication examinée pour les avis de marché
-HISTORIQUE = 730      # fenêtre des résultats de marché (attributions)
+HIST_DEBUT = dt.date(2024, 1, 1)   # résultats de marché repris depuis cette date
+DEPUIS = "depuis janvier 2024"
 API = "https://boamp-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/boamp"
 REGION = "Bourgogne-Franche-Comté"
 DEPS = {  # code: (nom, préposition + nom)
@@ -123,6 +124,7 @@ def normaliser(rec, today):
         "procedure": str(r.get("procedurelibelle") or "").strip(), "url": url,
         "famille": str(r.get("famillelibelle") or "").strip(),
         "d": extraire.details_marche(r.get("donnees")), "siret": extraire.siret_acheteur(r.get("donnees")),
+        "contact": extraire.contact_acheteur(r.get("donnees")),
     }
 
 
@@ -133,6 +135,7 @@ def normaliser_resultat(rec):
     if not (idweb and objet and paru):
         return None
     d = extraire.details_attribution(r.get("donnees"))
+    fin = extraire.fin_contrat(r.get("donnees"), paru)
     vus, gagnants = set(), []
     for g in liste(r.get("titulaire")) + d.get("titulaires", []):
         g = " ".join(html.unescape(g).split())
@@ -145,7 +148,8 @@ def normaliser_resultat(rec):
     return {"id": idweb, "objet": objet, "acheteur": " ".join(html.unescape(str(r.get("nomacheteur") or "")).split()), "paru": paru,
             "deps": [c for c in (x.zfill(2) for x in liste(r.get("codedepartement"))) if c in DEPS],
             "metiers": [slug(m) for m in liste(r.get("descripteurlibelle"))], "gagnants": gagnants, "texte": d.get("texte", ""),
-            "offres": d.get("offres", []), "montant": d.get("montant"), "url": url, "siret": extraire.siret_acheteur(r.get("donnees"))}
+            "offres": d.get("offres", []), "montant": d.get("montant"), "url": url, "siret": extraire.siret_acheteur(r.get("donnees")),
+            "fin": fin[0] if fin else None, "duree": fin[1] if fin else ""}
 
 
 def euros(m):
@@ -186,7 +190,7 @@ def page(chemin, titre, desc, corps, index=True, fil=(), large=False):
 <link rel="stylesheet" href="{rel}style.css"></head><body>
 <a class="saut" href="#contenu">Aller au contenu</a>
 <header class="tete"><div class="cadre"><a class="marque" href="{rel or './'}"><span class="pastille" aria-hidden="true"></span>{SITE}</a>
-<nav aria-label="Navigation principale"><a href="{rel}#departements">Départements</a><a href="{rel}metiers/">Métiers</a><a href="{rel}pro/">Version Pro</a><a href="{rel}a-propos/">À propos</a>{f'<a class="inscrire" href="{rel}inscription/">Alertes gratuites</a>' if ALERTES else ''}</nav></div></header>
+<nav aria-label="Navigation principale"><a href="{rel}#departements">Départements</a><a href="{rel}metiers/">Métiers</a><a href="{rel}relances/">Bientôt relancés</a><a href="{rel}pro/">Version Pro</a><a href="{rel}a-propos/">À propos</a>{f'<a class="inscrire" href="{rel}inscription/">Alertes gratuites</a>' if ALERTES else ''}</nav></div></header>
 <main id="contenu" class="cadre{' large' if large else ''}">{f'<nav class="fil" aria-label="Fil d’Ariane">{crumbs}</nav>' if crumbs else ''}
 {corps}
 </main>
@@ -299,10 +303,78 @@ def bloc_classement(c, s, m, prep):
         med = int(statistics.median(offres))
         stat = f'<p class="repere"><b>{med}</b><span>offre{"s" if med > 1 else ""} reçue{"s" if med > 1 else ""} par marché, en médiane, sur les {len(offres)} résultats qui donnent ce chiffre</span></p>'
     return f"""<section id="titulaires" class="bloc"><h2>Qui a remporté les marchés « {E(m)} » {prep}</h2>
-<p class="intro">{len(res)} résultat{'s' if len(res) > 1 else ''} publié{'s' if len(res) > 1 else ''} depuis 24 mois. Ce sont les entreprises que vous aurez le plus de chances de retrouver en face de vous.</p>
+<p class="intro">{len(res)} résultat{'s' if len(res) > 1 else ''} publié{'s' if len(res) > 1 else ''} {DEPUIS}. Ce sont les entreprises que vous aurez le plus de chances de retrouver en face de vous.</p>
 {stat}
 <div class="tablo"><table><thead><tr><th>Entreprise retenue</th><th class="n">Marchés</th><th>Dernier marché remporté</th></tr></thead><tbody>{lignes}</tbody></table></div>
 <p class="note">D'après les résultats publiés au Bulletin officiel. Tous les marchés attribués n'y sont pas publiés.</p></section>"""
+
+
+def dans_mois(fin):
+    j = (fin - TODAY).days
+    return "échu récemment" if j < 0 else "ce mois-ci" if j < 31 else f"dans {round(j / 30.44)} mois"
+
+
+def carte_relance(r, rel):
+    """Un marché attribué dont la période arrive à son terme : il sera probablement remis en concurrence."""
+    f = r["fin"]
+    lieux = ", ".join(DEPS[c][0] for c in r["deps"][:3]) + (f" et {len(r['deps']) - 3} autres" if len(r["deps"]) > 3 else "")
+    p = [x for x in (f"Durée {r['duree']}" if r["duree"] else "", f"Montant publié : {euros(r['montant'])}" if r["montant"] else "",
+                     (f"{r['offres'][0]} offre{'s' if r['offres'][0] > 1 else ''} reçue{'s' if r['offres'][0] > 1 else ''} la dernière fois" if r["offres"] else "")) if x]
+    deja = DEJA.get(r["id"])
+    return f"""<article class="avis relance" data-type="{E(DEPS[r['deps'][0]][0].lower()) if r['deps'] else ''}">
+<div class="tuile fin"><span class="t-mois">{f.year}</span><span class="t-jour">{MOIS_C[f.month - 1]}</span><span class="t-reste">{dans_mois(f)}</span></div>
+<div class="corps"><h3><a href="{E(r['url'])}" rel="nofollow noopener">{E(r['objet'])}</a></h3>
+<p class="qui"><b>{E(r['acheteur'])}</b><span>{E(lieux)}</span></p>
+<p class="tenu">{'Détenu par <b>' + ', '.join(nom_lie(g, rel) for g in r['gagnants'][:4]) + '</b>' + (' et d’autres' if len(r['gagnants']) > 4 else '') if r['gagnants'] else 'Titulaire actuel non indiqué dans les données'}</p>
+{f'<ul class="puces">{"".join(f"<li>{E(x)}</li>" for x in p)}</ul>' if p else ''}
+{f'<p class="histo"><a href="{rel}avis/{E(deja)}/">Une annonce de cet acheteur dans ce métier est ouverte en ce moment</a></p>' if deja else ''}</div></article>"""
+
+
+def bloc_relances(liste, rel, titre, intro, maxi=8, filtres=False):
+    if not liste:
+        return ""
+    cartes = "".join(carte_relance(r, rel) for r in liste[:maxi])
+    barre = '<div class="filtres" hidden><div class="types" role="group" aria-label="Département"></div><label class="cherche"><span>Chercher dans cette liste</span><input type="search" placeholder="un mot, un acheteur, une entreprise"></label></div><p class="vide aucun" hidden>Aucun marché ne correspond à ces filtres.</p>' if filtres else ""
+    suite = f'<p><a class="suite" href="{rel}relances/">Voir les {len(RELANCES)} marchés qui arrivent à échéance</a></p>' if not filtres and len(liste) > maxi else ""
+    return f"""<section class="bloc" id="relances"><h2>{titre}</h2><p class="intro">{intro}</p><div class="liste">{barre}{cartes}</div>{suite}
+<p class="note">Date calculée à partir de la durée ou de la date de fin publiée dans le résultat du marché. Un marché peut être reconduit sans nouvelle annonce, et la durée publiée couvre parfois déjà les reconductions : c'est un repère, pas une certitude.</p></section>"""
+
+
+def lecture_rapide(a, hist, memes):
+    """Trois repères pour décider vite : la concurrence habituelle, l'entreprise en place, le poids du prix."""
+    lignes = []
+    off = [r["offres"][0] for r in hist if r["offres"]]
+    cle = next(((c, slug(m)) for m in a["metiers"] for c in a["deps"] if len([r for r in RES_COMBO.get((c, slug(m)), []) if r["offres"]]) >= 3), None)
+    if len(off) >= 2:
+        med = int(statistics.median(off))
+        mot = "peu disputé" if med <= 2 else "disputé" if med <= 5 else "très disputé"
+        lignes.append(("Concurrence", f"<b>{med} offre{'s' if med > 1 else ''}</b> en médiane chez cet acheteur, {mot}", f"sur {len(off)} de ses résultats qui donnent ce chiffre"))
+    elif cle:
+        o2 = [r["offres"][0] for r in RES_COMBO[cle] if r["offres"]]
+        med = int(statistics.median(o2))
+        lignes.append(("Concurrence", f"<b>{med} offre{'s' if med > 1 else ''}</b> en médiane dans ce métier {DEPS[cle[0]][1]}", f"sur {len(o2)} résultats, cet acheteur n'en ayant pas assez publié"))
+    avec = [r for r in memes if r["gagnants"]]
+    if avec:
+        dernier = avec[0]
+        compte = defaultdict(int)
+        for r in avec[:6]:
+            for g in r["gagnants"]:
+                compte[slug(g)] += 1
+        k = max(compte, key=compte.get)
+        nomk = next(g for r in avec for g in r["gagnants"] if slug(g) == k)
+        if compte[k] >= 2 and len(avec) >= 2:
+            lignes.append(("Entreprise en place", f"<b>{nom_lie(nomk, '../../')}</b> a remporté {compte[k]} des {min(6, len(avec))} derniers marchés comparables", "même acheteur, même métier"))
+        else:
+            lignes.append(("Dernier titulaire", f"<b>{', '.join(nom_lie(g, '../../') for g in dernier['gagnants'][:3])}</b>", f"marché comparable attribué en {MOIS_C[dernier['paru'].month - 1]} {dernier['paru'].year}"))
+    prix = next(((p, u) for n, p, u in a["d"].get("criteres", []) if p and re.search(r"prix|co[uû]t|financ|tarif", n, flags=re.I)), None)
+    if prix:
+        tot = sum(p or 0 for _, p, _ in a["d"]["criteres"])
+        part = round(100 * prix[0] / tot) if tot else None
+        if part:
+            lignes.append(("Poids du prix", f"<b>{part} %</b> de la note" + (", le reste se joue sur votre dossier" if part < 60 else ", le prix décide presque tout"), "d'après les critères publiés" + (" pour le premier lot" if a["d"].get("criteres_premier_lot") else "")))
+    if not lignes:
+        return ""
+    return '<section class="bloc"><h2>Lecture rapide</h2><ul class="reperes">' + "".join(f"<li><span>{t}</span><p>{v}</p><i>{n}</i></li>" for t, v, n in lignes) + '</ul><p class="note">Fonction Pro, en accès libre pendant le lancement. Ces repères décrivent le passé de cet acheteur, ils ne prédisent pas le résultat.</p></section>'
 
 
 def page_avis(a, metiers, dslug):
@@ -332,7 +404,7 @@ def page_avis(a, metiers, dslug):
     memes = [x for x in hist if set(x["metiers"]) & mes]
     autres = [x for x in hist if x not in memes]
     if hist:
-        histo = f'<p class="intro">{len(hist)} résultat{"s" if len(hist) > 1 else ""} publié{"s" if len(hist) > 1 else ""} par cet acheteur depuis 24 mois. Regardez qui il a retenu et combien d\'entreprises avaient répondu.</p>'
+        histo = f'<p class="intro">{len(hist)} résultat{"s" if len(hist) > 1 else ""} publié{"s" if len(hist) > 1 else ""} par cet acheteur {DEPUIS}. Regardez qui il a retenu et combien d\'entreprises avaient répondu.</p>'
         if memes:
             histo += f'<h3 class="sous">Dans le même métier</h3><ul class="resultats">{"".join(ligne_resultat(x) for x in memes[:10])}</ul>'
         reste_n = max(0, 12 - len(memes[:10]))
@@ -342,7 +414,7 @@ def page_avis(a, metiers, dslug):
         if len(hist) > vus:
             histo += f'<p class="note">Les {vus} plus utiles sur {len(hist)} sont affichés.</p>'
     else:
-        histo = '<p class="vide">Aucun résultat publié au Bulletin officiel par cet acheteur depuis 24 mois. Cela ne veut pas dire qu\'il n\'a rien attribué : tous les résultats n\'y sont pas publiés.</p>'
+        histo = f'<p class="vide">Aucun résultat publié au Bulletin officiel par cet acheteur {DEPUIS}. Cela ne veut pas dire qu\'il n\'a rien attribué : tous les résultats n\'y sont pas publiés.</p>'
     classement = ""
     for m in a["metiers"]:
         for c in a["deps"]:
@@ -360,8 +432,10 @@ def page_avis(a, metiers, dslug):
 <p class="f-date">À remettre avant le <b>{fr(a['limite'])}</b></p>
 {f'<a class="bouton" href="{E(d["dossier"])}" rel="nofollow noopener">Télécharger le dossier</a><p class="note">Les documents à lire et à remplir pour répondre, sur la plateforme de l’acheteur.</p>' if d.get('dossier') else ''}
 {f'<a class="bouton second" href="../../inscription/?m={slug(a["metiers"][0])}&amp;d={a["deps"][0]}">Être prévenu des prochaines annonces</a><p class="note">Alerte gratuite par e-mail pour ce métier et ce département.</p>' if ALERTES and a["metiers"] and a["deps"] else ''}
-<a class="bouton second" href="{E(a['url'])}" rel="nofollow noopener">Lire l'avis officiel</a><p class="note">Avis n° {E(a['id'])} sur boamp.fr{f", publié le {fr(a['paru'])}" if a['paru'] else ''}.</p><p class="pro-mini"><a href="../../pro/">Version Pro, bientôt disponible</a><span>Historique complet, suivi des concurrents, alertes quotidiennes.</span></p></aside>
+<a class="bouton second" href="{E(a['url'])}" rel="nofollow noopener">Lire l'avis officiel</a><p class="note">Avis n° {E(a['id'])} sur boamp.fr{f", publié le {fr(a['paru'])}" if a['paru'] else ''}.</p>{f'<div class="contact"><b>Contacter l’acheteur</b>{"<span>" + E(a["contact"]["mail"]) + "</span>" if a["contact"].get("mail") else ""}{"<span>" + E(a["contact"]["tel"]) + "</span>" if a["contact"].get("tel") else ""}</div>' if a.get("contact") else ''}
+<p class="pro-mini"><a href="../../pro/">Version Pro, bientôt disponible</a><span>Historique complet, suivi des concurrents, alertes quotidiennes.</span></p></aside>
 <div class="f-corps">
+{lecture_rapide(a, hist, memes)}
 <section class="bloc"><h2>L'essentiel de l'annonce</h2><dl class="essentiel">{essentiel}</dl></section>
 <section class="bloc"><h2>Ce que cet acheteur a déjà attribué</h2>{histo}</section>
 {classement}
@@ -399,28 +473,30 @@ def est_entreprise(nom):
 
 
 PRO_PLUS = [
-    ("L'historique complet de chaque acheteur", "Tous ses marchés attribués sur plusieurs années, et non plus les derniers seulement."),
-    ("Le suivi de vos concurrents", "Pour chaque entreprise : les marchés remportés, chez quels acheteurs, dans quels métiers. Avec une alerte quand un concurrent gagne un marché."),
-    ("Des alertes chaque matin", "Sur plusieurs métiers et plusieurs départements à la fois, au lieu d'une alerte par semaine sur un seul métier."),
-    ("Des alertes par acheteur", "Vous êtes prévenu dès qu'une mairie, un hôpital ou une collectivité que vous suivez publie une annonce."),
-    ("Des rappels avant la date limite", "Un e-mail sept jours puis deux jours avant l'échéance des annonces que vous avez mises de côté."),
+    ("Les marchés bientôt relancés", "Vous voyez les marchés de votre métier dont le contrat se termine dans les douze mois, avec l'entreprise qui les détient. Vous vous préparez avant que l'annonce ne paraisse.", "relances/"),
+    ("Une lecture rapide de chaque annonce", "Combien d'entreprises répondent d'habitude chez cet acheteur, qui détient le marché, et ce que pèse le prix dans la note. Vous décidez en une minute si le dossier vaut vos trois jours de travail.", ""),
+    ("Le suivi de vos concurrents", "Pour chaque entreprise : les marchés remportés, chez quels acheteurs, et ceux qu'elle devra bientôt remettre en jeu.", ""),
+    ("L'historique complet de chaque acheteur", "Tous ses marchés attribués depuis janvier 2024, avec les entreprises retenues, le nombre d'offres reçues et les montants publiés.", ""),
+    ("Le contact direct de l'acheteur", "L'e-mail et le téléphone du service qui passe le marché, pour poser vos questions avant de répondre.", ""),
+    ("Des alertes sur mesure", "Chaque matin, sur plusieurs métiers et départements, par acheteur, et quand un marché de votre métier approche de son terme. Cette fonction n'est pas encore construite.", ""),
 ]
 
 
 def page_pro():
-    plus = "".join(f"<li><b>{E(t)}</b><span>{E(d)}</span></li>" for t, d in PRO_PLUS)
+    plus = "".join(f"<li><b>{E(t)}</b><span>{E(d)}</span>{f'<a href=\"../{u}\">Voir un exemple</a>' if u else ''}</li>" for t, d, u in PRO_PLUS)
     attente = f"""<form class="alerte attente" novalidate><h2>Être prévenu de l'ouverture</h2>
 <p class="intro">Laissez votre adresse : vous recevrez un seul e-mail, le jour où la version Pro ouvre.</p>
 <div class="champ"><label for="al-email">Votre adresse e-mail</label><input id="al-email" name="email" type="email" autocomplete="email" required>
 <input name="site" type="text" tabindex="-1" autocomplete="off" class="pot" aria-hidden="true"><button type="submit" class="bouton">Prévenez-moi</button></div>
 <p class="etat" role="status"></p><p class="note">Sans engagement et sans paiement. Un e-mail de confirmation vous est envoyé dans l'heure.</p></form>""" if ALERTES else ""
     page("pro", f"Version Pro, bientôt disponible | {SITE}", f"La version Pro de {SITE} : historique complet des acheteurs, suivi des concurrents, alertes quotidiennes. Bientôt disponible.",
-         f"""<div class="pro-tete"><p class="etiquette">Bientôt disponible</p><h1>La version Pro, pour décider vite si un marché vaut le coup</h1>
-<p class="intro">Répondre à un marché public prend des jours. La version Pro vous dit avant de commencer qui détient le marché aujourd'hui, combien d'entreprises répondent d'habitude, et vous prévient au bon moment.</p></div>
+         f"""<div class="pro-tete"><p class="etiquette">Bientôt disponible</p><h1>Savoir avant les autres quels marchés vont s'ouvrir, et lesquels valent le coup</h1>
+<p class="intro">Répondre à un marché public prend des jours. La version Pro vous montre les marchés de votre métier qui arrivent à échéance, qui les détient, combien d'entreprises répondent d'habitude, et ce que pèse le prix. Vous choisissez vos batailles au lieu de répondre à l'aveugle.</p>
+<p class="intro"><b>{len(RELANCES)} marchés arrivent à échéance dans les douze mois</b> en {REGION}, d'après les résultats publiés. <a href="../relances/">Les voir</a></p></div>
 <div class="pro-grille"><section class="bloc"><h2>Ce que la version Pro ajoute</h2><ul class="pro-plus">{plus}</ul></section>
 <aside class="pro-cote"><div class="prix"><b>9 €</b><span>par mois, prix envisagé, sans engagement</span></div>
 <p class="note">Le prix et la date d'ouverture ne sont pas encore fixés. Aucun paiement n'est possible pour le moment.</p>{attente}</aside></div>
-<section class="bloc"><h2>Ce qui reste gratuit</h2><p class="intro">La liste des annonces par métier et par département, l'essentiel de chaque annonce, le lien vers le dossier à télécharger et une alerte par semaine. Pendant le lancement, l'historique des acheteurs et les fiches des entreprises retenues sont aussi en accès libre.</p></section>""",
+<section class="bloc"><h2>Ce qui reste gratuit</h2><p class="intro">La liste des annonces par métier et par département, l'essentiel de chaque annonce, le lien vers le dossier à télécharger et une alerte par semaine. Pendant le lancement, les fonctions Pro déjà construites sont en accès libre : marchés bientôt relancés, lecture rapide, historique des acheteurs, fiches des entreprises et contacts.</p></section>""",
          fil=[("Accueil", "")])
 
 
@@ -450,13 +526,14 @@ def pages_entreprises(resultats, metiers):
 <p class="gagne">{E(r['acheteur'])}{' avec ' + ', '.join(nom_lie(g, '../../') for g in r['gagnants'][:5] if slug(g) != k) if len(r['gagnants']) > 1 else ''}</p></div></li>""" for r in res[:40])
         corps = f"""<p class="etiquette">Fonction Pro, en accès libre pendant le lancement</p>
 <h1>{E(nom)}</h1>
-<p class="intro">{len(res)} marchés publics remportés en {REGION} depuis 24 mois, d'après les résultats publiés au Bulletin officiel{', ' + E(top_d) if top_d else ''}.</p>
+<p class="intro">{len(res)} marchés publics remportés en {REGION} {DEPUIS}, d'après les résultats publiés au Bulletin officiel{', ' + E(top_d) if top_d else ''}.</p>
 <div class="deux"><section class="bloc"><h2>Ses acheteurs</h2><ul class="compteurs">{top_a}</ul></section>
 {f'<section class="bloc"><h2>Ses métiers</h2><ul class="puces">{top_m}</ul></section>' if top_m else ''}</div>
+{bloc_relances([r for r in RELANCES if k in {slug(g) for g in r["gagnants"]}], "../../", "Ses marchés qui arrivent à échéance", "Les marchés détenus par cette entreprise dont la période se termine dans les douze mois : ce sont ceux qui peuvent être remis en concurrence.", 6)}
 <section class="bloc"><h2>Les marchés remportés</h2><ul class="resultats">{lignes}</ul>
 {f'<p class="note">Les 40 plus récents sur {len(res)} sont affichés.</p>' if len(res) > 40 else ''}
 <p class="note">Entreprise identifiée par le nom publié dans les résultats : deux entreprises homonymes peuvent être confondues, et une même entreprise peut apparaître sous plusieurs écritures. Tous les marchés attribués ne sont pas publiés. Une erreur ou une demande de retrait : voir la page À propos.</p></section>"""
-        page(f"entreprise/{k}", f"{court(nom, 50)} : marchés publics remportés | {SITE}", court(f"Les marchés publics remportés par {nom} en {REGION} depuis 24 mois : acheteurs, métiers et résultats publiés.", 158), corps, fil=[("Accueil", "")])
+        page(f"entreprise/{k}", f"{court(nom, 50)} : marchés publics remportés | {SITE}", court(f"Les marchés publics remportés par {nom} en {REGION} {DEPUIS} : acheteurs, métiers et résultats publiés.", 158), corps, fil=[("Accueil", "")])
 
 
 def BANDEAU(rel, m="", d=""):
@@ -573,6 +650,15 @@ th,td{text-align:left;padding:.55rem .9rem;border-top:1px solid var(--trait);ver
 .n{text-align:right;font-variant-numeric:tabular-nums}td.n{font-weight:600}
 .rubriques{display:flex;flex-wrap:wrap;gap:.5rem}.rubriques a{background:var(--carte);border:1px solid var(--trait);padding:.4rem .8rem;border-radius:99px;text-decoration:none;font-weight:500}
 
+/* relances, lecture rapide, contact */
+.tuile.fin .t-jour{font-size:1.55rem;padding:.5rem 0 .25rem}.tenu{font-size:.97rem}
+.appel{display:flex;gap:1rem 2rem;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--carte);border:2px solid var(--bleu);padding:1.1rem 1.3rem}
+.appel div{display:flex;flex-direction:column;gap:.15rem;flex:1 1 18rem;min-width:0}.appel b{font:700 1.4rem/1.15 var(--titre)}.appel span{color:var(--doux);font-size:.97rem}
+.reperes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.7rem}
+.reperes li{background:var(--carte);border:1px solid var(--trait);border-top:.35rem solid var(--jaune);padding:.8rem 1rem;display:flex;flex-direction:column;gap:.25rem}
+.reperes span{font-size:.86rem;font-weight:600;color:var(--doux)}.reperes p{font-size:1.02rem;line-height:1.35}.reperes b{font-weight:600}.reperes i{font-style:normal;font-size:.82rem;color:var(--doux)}
+.contact{border-top:1px solid var(--trait);padding-top:.7rem;margin-top:.3rem;display:flex;flex-direction:column;gap:.1rem;font-size:.93rem}.contact span{overflow-wrap:anywhere;user-select:all}
+.pro-plus a{font-weight:600;font-size:.93rem;align-self:flex-start}
 /* version pro et fiches entreprises */
 .etiquette{align-self:flex-start;display:inline-block;background:var(--jaune);color:var(--sur-jaune);font-weight:600;font-size:.9rem;padding:.15rem .6rem}
 .pro-tete{display:flex;flex-direction:column;gap:.9rem;max-width:50rem}
@@ -702,7 +788,7 @@ if(a){
 
 
 def main():
-    global TODAY, SITEMAP, HIST, RES_COMBO, FICHES
+    global TODAY, SITEMAP, HIST, RES_COMBO, FICHES, RELANCES, DEJA
     TODAY = dt.datetime.now(dt.timezone(dt.timedelta(hours=1))).date()
     SITEMAP = []
     brut = fetch(TODAY - dt.timedelta(days=JOURS))
@@ -717,7 +803,7 @@ def main():
 
     # résultats de marché des 24 derniers mois : qui a gagné quoi, chez quel acheteur
     resultats, vus_r = [], set()
-    for rec in fetch(TODAY - dt.timedelta(days=HISTORIQUE), "ATTRIBUTION"):
+    for rec in fetch(HIST_DEBUT, "ATTRIBUTION"):
         r = normaliser_resultat(rec)
         if r and r["id"] not in vus_r:
             vus_r.add(r["id"])
@@ -735,6 +821,13 @@ def main():
         for g in r["gagnants"]:
             nb[slug(g)] += 1
     FICHES = {k for k, n in nb.items() if n >= 2 and len(k) >= 3 and est_entreprise(k)}
+    RELANCES = sorted((r for r in resultats if r["fin"] and r["deps"] and -30 <= (r["fin"] - TODAY).days <= 365), key=lambda r: r["fin"])
+    DEJA = {}
+    for r in RELANCES:                  # une annonce ouverte du même acheteur dans le même métier : peut-être déjà la relance
+        for a in ouverts:
+            if ((r["siret"] and r["siret"] == a["siret"]) or slug(r["acheteur"]) == slug(a["acheteur"])) and set(r["metiers"]) & {slug(m) for m in a["metiers"]}:
+                DEJA[r["id"]] = a["id"]
+                break
     HIST = {}
     for a in ouverts:
         h = {r["id"]: r for r in (par_siret.get(a["siret"], []) if a["siret"] else []) + par_nom.get(slug(a["acheteur"]), [])}
@@ -797,6 +890,7 @@ def main():
 <ol class="etapes"><li><b>Choisissez votre métier</b><span>Vous voyez seulement les annonces qui vous concernent, de la plus urgente à la plus lointaine.</span></li>
 <li><b>Lisez la fiche</b><span>Montant, lots, critères de notation, et qui a gagné les marchés précédents de cet acheteur.</span></li>
 <li><b>Téléchargez le dossier</b><span>Un lien direct vers les documents à remplir, sur la plateforme de l'acheteur.</span></li></ol>
+<aside class="appel"><div><b>{len(RELANCES)} marchés arrivent à échéance dans les douze mois</b><span>Voyez quels contrats de votre métier vont être remis en jeu, et qui les détient aujourd'hui.</span></div><a class="bouton" href="relances/">Voir les marchés bientôt relancés</a></aside>
 <section class="bloc" id="departements"><h2>Par département</h2>{liens([(f"{DEPS[c][0]}", f"{dslug[c]}/", len(par_dep[c])) for c in DEPS], "deps")}</section>
 <section class="bloc"><h2>Les métiers les plus demandés</h2>{liens([(metiers[s], f"metier/{s}/", len(par_met[s])) for s in actifs[:24]])}
 <p><a class="suite" href="metiers/">Voir les {len(actifs)} métiers</a></p></section>
@@ -829,6 +923,7 @@ def main():
             corps = f"""<h1>Appels d'offres « {E(m)} » {prep}</h1>
 <p class="intro">{n_avis(len(cv))} au {fr(TODAY)}. Voir aussi <a href="../../metier/{s}/">« {E(m)} » dans toute la région</a>.</p>
 <section class="bloc">{bloc_liste(cv, "../../")}</section>
+{bloc_relances([r for r in RELANCES if c in r["deps"] and s in r["metiers"]], "../../", f"« {E(m)} » {prep} : les marchés qui arrivent à échéance", "Des marchés de ce métier dont la période se termine dans les douze mois. Ils peuvent être remis en concurrence.", 6)}
 {bloc_classement(c, s, m, prep)}
 {formulaire(c, s, m, prep)}"""
             page(f"{dslug[c]}/{s}", f"Appels d'offres {m.lower()} {nom} ({c}) : {n_avis(len(cv))} | {SITE}",
@@ -839,6 +934,11 @@ def main():
         page_avis(a, metiers, dslug)
     pages_entreprises(resultats, metiers)
     page_pro()
+    page("relances", f"Marchés publics bientôt relancés en {REGION} | {SITE}", f"{len(RELANCES)} marchés publics arrivent à échéance dans les douze mois en {REGION} : acheteur, entreprise en place, date de fin prévue.",
+         f"""<p class="etiquette">Fonction Pro, en accès libre pendant le lancement</p>
+<h1>Les marchés qui arrivent à échéance</h1>
+{bloc_relances(RELANCES, "../", f"{len(RELANCES)} marchés dans les douze mois", "Ces marchés ont été attribués et leur période se termine bientôt. L'acheteur devra souvent relancer une mise en concurrence : c'est le moment de vous préparer et de vous faire connaître, avant que l'annonce ne paraisse.", 400, True)}""",
+         fil=[("Accueil", "")])
 
     # métiers (région)
     for s in tri_met:
@@ -888,7 +988,7 @@ def main():
         + "".join(f"<url><loc>{E(u)}</loc><lastmod>{TODAY.isoformat()}</lastmod></url>\n" for u in SITEMAP) + "</urlset>\n", encoding="utf-8")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n")
     Path("data").mkdir(exist_ok=True)
-    Path("data/etat.json").write_text(json.dumps({"date": TODAY.isoformat(), "recus": len(brut), "retenus": len(tous), "ouverts": len(ouverts), "resultats": len(resultats), "avec_historique": len(HIST), "fiches_entreprises": len(FICHES), "pages_indexables": len(SITEMAP)}, indent=1) + "\n")
+    Path("data/etat.json").write_text(json.dumps({"date": TODAY.isoformat(), "recus": len(brut), "retenus": len(tous), "ouverts": len(ouverts), "resultats": len(resultats), "avec_historique": len(HIST), "fiches_entreprises": len(FICHES), "relances": len(RELANCES), "pages_indexables": len(SITEMAP)}, indent=1) + "\n")
     print(f"[site] {len(SITEMAP)} pages indexables écrites dans {OUT}/")
 
 

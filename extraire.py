@@ -139,12 +139,26 @@ def details_marche(donnees):
     return r
 
 
+def _ids_acheteur(e):
+    """Identifiants internes de l'acheteur dans l'avis, sans le prestataire qui publie pour son compte."""
+    ids = set()
+    for p in trouver(e, "cac:ContractingParty"):
+        partie = p.get("cac:Party") if isinstance(p, dict) else None
+        for q in (partie if isinstance(partie, list) else [partie]):
+            if isinstance(q, dict):
+                ident = q.get("cac:PartyIdentification")
+                for i in (ident if isinstance(ident, list) else [ident]):
+                    if isinstance(i, dict) and txt(i.get("cbc:ID")):
+                        ids.add(txt(i.get("cbc:ID")))
+    return ids
+
+
 def siret_acheteur(donnees):
     """Numéro SIRET de l'acheteur quand l'avis le donne : sert à rapprocher les avis d'un même acheteur malgré les variantes de nom."""
     d = charger(donnees)
     if "EFORMS" in d:
         e = d["EFORMS"]
-        ids = {txt(i) for p in trouver(e, "cac:ContractingParty") for i in trouver(p, "cbc:ID")}
+        ids = _ids_acheteur(e)
         for o in trouver(e, "efac:Company"):
             if isinstance(o, dict) and ids & {txt(i) for i in trouver(o.get("cac:PartyIdentification"), "cbc:ID")}:
                 s = re.sub(r"\D", "", " ".join(txt(i) for i in trouver(o.get("cac:PartyLegalEntity"), "cbc:CompanyID")))
@@ -206,3 +220,61 @@ def cles(n, prefixe="", acc=None, prof=0):
         for v in n[:3]:
             cles(v, prefixe, acc, prof)
     return acc
+
+
+def _date(s):
+    import datetime as dt
+    try:
+        return dt.date.fromisoformat(str(s)[:10])
+    except ValueError:
+        return None
+
+
+def fin_contrat(donnees, paru):
+    """Fin prévue d'un marché attribué, quand le résultat publie une date de fin ou une durée (avis au format européen).
+    Renvoie (date de fin, durée en clair) ou None. La durée publiée inclut souvent les reconductions possibles."""
+    import datetime as dt
+    d = charger(donnees)
+    if "EFORMS" not in d:
+        return None
+    e = d["EFORMS"]
+    fins = [f for f in (_date(txt(x)) for x in trouver(e, "cbc:EndDate")) if f]
+    debuts = [f for f in (_date(txt(x)) for x in trouver(e, "cbc:StartDate")) if f]
+    signe = [f for f in (_date(txt(x)) for sc in trouver(e, "efac:SettledContract") for x in trouver(sc, "cbc:IssueDate")) if f]
+    mois = None
+    for dm in trouver(e, "cbc:DurationMeasure"):
+        v, u = nombre(txt(dm)), (dm.get("@unitCode", "") if isinstance(dm, dict) else "")
+        if v and u in ("MONTH", "YEAR", "DAY"):
+            mois = v if u == "MONTH" else v * 12 if u == "YEAR" else v / 30.4
+            break
+    if fins:
+        fin = max(fins)
+        return (fin, f"{int(round(mois))} mois" if mois else "") if fin.year < 2100 else None
+    if not mois or mois < 2 or mois > 120:
+        return None
+    base = min(debuts) if debuts else (min(signe) if signe else paru)
+    if not base or abs((base - paru).days) > 400:
+        base = paru
+    return base + dt.timedelta(days=round(mois * 30.44)), f"{int(round(mois))} mois"
+
+
+def contact_acheteur(donnees):
+    """E-mail et téléphone du service acheteur, tels que publiés dans l'avis. Les noms de personnes ne sont pas repris."""
+    d = charger(donnees)
+    mail = tel = ""
+    if "EFORMS" in d:
+        e = d["EFORMS"]
+        ids = _ids_acheteur(e)
+        for o in trouver(e, "efac:Company"):
+            if isinstance(o, dict) and ids & {txt(i) for i in trouver(o.get("cac:PartyIdentification"), "cbc:ID")}:
+                c = o.get("cac:Contact") if isinstance(o.get("cac:Contact"), dict) else {}
+                mail, tel = txt(c.get("cbc:ElectronicMail")), txt(c.get("cbc:Telephone"))
+                break
+    else:
+        mail = next((txt(v) for k in ("adresseMailContact", "mel") for v in trouver(d, k) if "@" in txt(v)), "")
+        tel = next((txt(v) for k in ("telContact", "tel") for v in trouver(d, k) if txt(v)), "")
+    mail = mail.strip().lower()
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[a-z]{2,}$", mail):
+        mail = ""
+    tel = re.sub(r"[^0-9+ ]", "", tel).strip()
+    return {k: v for k, v in (("mail", mail), ("tel", tel if 9 <= len(re.sub(r"\D", "", tel)) <= 13 else "")) if v}
