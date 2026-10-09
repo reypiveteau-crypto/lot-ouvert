@@ -8,7 +8,7 @@ import gzip, statistics, time
 from zoneinfo import ZoneInfo
 import extraire
 
-CACHE_V = 1   # à augmenter quand le format des résultats mis en cache change
+CACHE_V = 2   # à augmenter quand le format des résultats mis en cache change
 
 SITE = "Lot Ouvert"
 BASE = os.environ.get("SITE_URL", "https://example.github.io/lot-ouvert").rstrip("/")
@@ -304,7 +304,8 @@ def normaliser_resultat(rec):
     vus, gagnants = set(), []
     for g in liste(r.get("titulaire")) + d.get("titulaires", []):
         g = " ".join(html.unescape(g).split())
-        if g and slug(g) not in vus and len(g) < 120 and not slug(g).startswith(("inconnu", "non-renseigne", "sans-objet")):
+        if g and slug(g) not in vus and len(g) < 120 and "@" not in g and not re.search(r"\d{9,}", g.replace(" ", "")) \
+                and not slug(g).startswith(("inconnu", "non-renseigne", "sans-objet")):
             vus.add(slug(g))
             gagnants.append(g)
     url = str(r.get("urlavis") or "")
@@ -312,7 +313,8 @@ def normaliser_resultat(rec):
         url = "https://www.boamp.fr/pages/avis/?q=" + urllib.parse.quote(f'idweb:"{idweb}"')
     return {"id": idweb, "objet": objet, "acheteur": " ".join(html.unescape(str(r.get("nomacheteur") or "")).split()), "paru": paru,
             "deps": [c for c in (x.zfill(2) for x in liste(r.get("codedepartement"))) if c in DEPS],
-            "metiers": [slug(m) for m in liste(r.get("descripteurlibelle"))], "gagnants": gagnants, "texte": d.get("texte", ""),
+            "metiers": [slug(m) for m in liste(r.get("descripteurlibelle"))], "gagnants": gagnants,
+            "texte": re.sub(r"(?:\+33|0)\s*[1-9](?:[\s.-]*\d{2}){4}", "", re.sub(r"\S+@\S+", "", d.get("texte", ""))),
             "offres": d.get("offres", []), "montant": d.get("montant"), "url": url, "siret": extraire.siret_acheteur(r.get("donnees")),
             "fin": fin[0] if fin else None, "duree": fin[1] if fin else ""}
 
@@ -476,7 +478,7 @@ def bloc_classement(c, s, m, prep):
 
 def dans_mois(fin):
     j = (fin - TODAY).days
-    return "échu récemment" if j < 0 else "ce mois-ci" if j < 31 else f"dans {round(j / 30.44)} mois"
+    return "échu récemment" if j < 0 else "dans moins d'un mois" if j < 46 else f"dans {round(j / 30.44)} mois"
 
 
 def carte_relance(r, rel):
