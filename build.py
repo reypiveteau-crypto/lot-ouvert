@@ -7,8 +7,9 @@ from pathlib import Path
 import gzip, statistics, time
 from zoneinfo import ZoneInfo
 import extraire
+import guides
 
-CACHE_V = 2   # à augmenter quand le format des résultats mis en cache change
+CACHE_V = 3   # à augmenter quand le format des résultats mis en cache change
 
 SITE = "Lot Ouvert"
 BASE = os.environ.get("SITE_URL", "https://example.github.io/lot-ouvert").rstrip("/")
@@ -214,6 +215,7 @@ def charger_resultats(today):
                 for r in c["items"]:
                     r["paru"] = dt.date.fromisoformat(r["paru"])
                     r["fin"] = dt.date.fromisoformat(r["fin"]) if r["fin"] else None
+                    r["ville"] = tuple(r["ville"]) if r.get("ville") else None
                     par_id[r["id"]] = r
                 debut = max(HIST_DEBUT, dt.date.fromisoformat(c["jusqua"]) - dt.timedelta(days=4))
                 print(f"[données] cache : {len(par_id)} résultats jusqu'au {c['jusqua']}")
@@ -289,7 +291,7 @@ def normaliser(rec, today):
         "procedure": str(r.get("procedurelibelle") or "").strip(), "url": url,
         "famille": str(r.get("famillelibelle") or "").strip(),
         "d": extraire.details_marche(r.get("donnees")), "siret": extraire.siret_acheteur(r.get("donnees")),
-        "contact": extraire.contact_acheteur(r.get("donnees")),
+        "contact": extraire.contact_acheteur(r.get("donnees")), "ville": extraire.ville_acheteur(r.get("donnees")),
     }
 
 
@@ -316,7 +318,7 @@ def normaliser_resultat(rec):
             "metiers": [slug(m) for m in liste(r.get("descripteurlibelle"))], "gagnants": gagnants,
             "texte": re.sub(r"(?:\+33|0)\s*[1-9](?:[\s.-]*\d{2}){4}", "", re.sub(r"\S+@\S+", "", d.get("texte", ""))),
             "offres": d.get("offres", []), "montant": d.get("montant"), "url": url, "siret": extraire.siret_acheteur(r.get("donnees")),
-            "fin": fin[0] if fin else None, "duree": fin[1] if fin else ""}
+            "fin": fin[0] if fin else None, "duree": fin[1] if fin else "", "ville": extraire.ville_acheteur(r.get("donnees"))}
 
 
 def euros(m):
@@ -346,18 +348,22 @@ def page(chemin, titre, desc, corps, index=True, fil=(), large=False):
     prof = chemin.count("/") + 1 if chemin else 0
     rel = "../" * prof
     crumbs = " <span aria-hidden=\"true\">/</span> ".join(f'<a href="{rel}{u}">{E(t)}</a>' for t, u in fil)
+    ld = json.dumps({"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": n, "name": t, "item": f"{BASE}/{u}"} for n, (t, u) in enumerate(list(fil) + [(titre.split(" | ")[0], chemin + "/" if chemin else "")], 1)]}, ensure_ascii=False).replace("</", "<\\/") if fil else ""
     doc = f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{E(titre)}</title><meta name="description" content="{E(desc)}">
 <meta property="og:title" content="{E(titre)}"><meta property="og:description" content="{E(desc)}"><meta property="og:type" content="website">
 <meta name="google-site-verification" content="Bn20ldA-SUhsySdq8ciYJMOjD6Uqmb6ymF6bQsDG6r8">
-<link rel="canonical" href="{E(canon)}">{'' if index else '<meta name="robots" content="noindex,follow">'}
+<meta property="og:url" content="{E(canon)}"><meta property="og:site_name" content="{SITE}"><meta property="og:locale" content="fr_FR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131a2b'/%3E%3Crect x='7' y='7' width='18' height='18' fill='%23ffcf1a'/%3E%3C/svg%3E">
+<link rel="canonical" href="{E(canon)}">{'' if index else '<meta name="robots" content="noindex,follow">'}{f'<script type="application/ld+json">{ld}</script>' if ld else ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
 <link rel="stylesheet" href="{rel}style.css"></head><body>
 <a class="saut" href="#contenu">Aller au contenu</a>
 <header class="tete"><div class="cadre"><a class="marque" href="{rel or './'}"><span class="pastille" aria-hidden="true"></span>{SITE}</a>
-<nav aria-label="Navigation principale"><a href="{rel}#departements">Départements</a><a href="{rel}metiers/">Métiers</a><a href="{rel}relances/">Bientôt relancés</a><a href="{rel}pro/">Version Pro</a><a href="{rel}a-propos/">À propos</a>{f'<a class="inscrire" href="{rel}inscription/">Alertes gratuites</a>' if ALERTES else ''}</nav></div></header>
+<nav aria-label="Navigation principale"><a href="{rel}#departements">Départements</a><a href="{rel}metiers/">Métiers</a><a href="{rel}relances/">Bientôt relancés</a><a href="{rel}guides/">Guides</a><a href="{rel}pro/">Version Pro</a>{f'<a class="inscrire" href="{rel}inscription/">Alertes gratuites</a>' if ALERTES else ''}</nav></div></header>
 <main id="contenu" class="cadre{' large' if large else ''}">{f'<nav class="fil" aria-label="Fil d’Ariane">{crumbs}</nav>' if crumbs else ''}
 {corps}
 </main>
@@ -703,6 +709,25 @@ def pages_entreprises(resultats, metiers):
         page(f"entreprise/{k}", f"{court(nom, 50)} : marchés publics remportés | {SITE}", court(f"Les marchés publics remportés par {nom} en France {DEPUIS} : acheteurs, métiers et résultats publiés.", 158), corps, fil=[("Accueil", "")])
 
 
+def a_ville(nom):
+    return f"au {nom[3:]}" if nom.startswith("Le ") else f"aux {nom[4:]}" if nom.startswith("Les ") else f"à {nom}"
+
+
+def pages_guides():
+    cartes = "".join(f'<li><a href="{g["slug"]}/"><b>{E(g["titre"])}</b><span>{E(g["resume"])}</span></a></li>' for g in guides.GUIDES)
+    page("guides", f"Guides pratiques des marchés publics | {SITE}", "Répondre à un appel d'offres public quand on est artisan ou petite entreprise : les étapes, les documents, le mémoire technique.",
+         f"""<h1>Guides pratiques</h1><p class="intro">Les marchés publics expliqués simplement, pour les artisans et les petites entreprises qui se lancent.</p><ul class="guides">{cartes}</ul>""", fil=[("Accueil", "")])
+    for g in guides.GUIDES:
+        autres = "".join(f'<a href="../{o["slug"]}/">{E(o["titre"])}</a>' for o in guides.GUIDES if o is not g)
+        src = "".join(f'<li><a href="{u}" rel="noopener">{E(t)}</a></li>' for t, u in g["sources"])
+        page(f"guides/{g['slug']}", f"{g['titre']} | {SITE}", g["resume"],
+             f"""<article class="guide"><h1>{E(g['titre'])}</h1>{g['corps']}
+<aside class="appel"><div><b>Trouver les annonces de votre métier</b><span>Triées par département, de la plus urgente à la plus lointaine.</span></div><a class="bouton" href="../../">Chercher une annonce</a></aside>
+<p class="note">Vérifié en {guides.VERIFIE}. Les règles et les montants des marchés publics changent régulièrement : en cas de doute, le règlement de la consultation et les textes officiels font foi.</p>
+<h2>Sources</h2><ul>{src}</ul></article>
+<section class="bloc"><h2>Les autres guides</h2><p class="rubriques">{autres}</p></section>""", fil=[("Accueil", ""), ("Guides", "guides/")])
+
+
 def BANDEAU(rel, m="", d=""):
     q = "&".join(x for x in (f"m={m}" if m else "", f"d={d}" if d else "") if x)
     return f"""<aside class="bandeau-alerte"><div><b>Recevez les nouvelles annonces de votre métier par e-mail</b><span>Gratuit, un e-mail par semaine au plus, désinscription en un clic.</span></div>
@@ -817,6 +842,14 @@ th,td{text-align:left;padding:.55rem .9rem;border-top:1px solid var(--trait);ver
 .n{text-align:right;font-variant-numeric:tabular-nums}td.n{font-weight:600}
 .rubriques{display:flex;flex-wrap:wrap;gap:.5rem}.rubriques a{background:var(--carte);border:1px solid var(--trait);padding:.4rem .8rem;border-radius:99px;text-decoration:none;font-weight:500}
 
+/* guides */
+.guides{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));gap:.7rem}
+.guides a{display:flex;flex-direction:column;gap:.3rem;height:100%;background:var(--carte);border:1px solid var(--trait);border-top:.35rem solid var(--bleu);padding:1rem;text-decoration:none;color:var(--encre)}
+.guides a:hover{border-color:var(--bleu)}.guides b{font:700 1.25rem/1.15 var(--titre)}.guides span{color:var(--doux);font-size:.95rem}
+.guide{display:flex;flex-direction:column;gap:1rem;max-width:46rem}.guide h1{font-size:clamp(1.8rem,4.4vw,2.6rem);margin-bottom:.4rem}.guide h2{margin-top:1rem;font-size:1.5rem}
+.guide ul{margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:.35rem}
+.definitions{margin:0;background:var(--carte);border:1px solid var(--trait)}.definitions>div{padding:.8rem 1.1rem;border-top:1px solid var(--trait)}.definitions>div:first-child{border-top:0}
+.definitions dt{font-weight:600}.definitions dd{margin:.15rem 0 0;color:var(--doux)}
 /* relances, lecture rapide, contact */
 .tuile.fin .t-jour{font-size:1.55rem;padding:.5rem 0 .25rem}.tenu{font-size:.97rem}
 .appel{display:flex;gap:1rem 2rem;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--carte);border:2px solid var(--bleu);padding:1.1rem 1.3rem}
@@ -1045,6 +1078,23 @@ def main():
             par_met[slug(m)].append(a)
 
     dslug = {c: slug(n) for c, (n, _) in DEPS.items()}
+
+    # villes : annonces regroupées par ville du siège de l'acheteur (au moins 3 annonces ouvertes pour avoir sa page)
+    formes, par_ville, rel_ville = defaultdict(lambda: defaultdict(int)), defaultdict(list), defaultdict(list)
+    for a in ouverts:
+        if a["ville"] and a["ville"][1] in DEPS:
+            k = (slug(a["ville"][0]), a["ville"][1])
+            formes[k][a["ville"][0]] += 1
+            par_ville[k].append(a)
+    for r in RELANCES:
+        if r.get("ville") and r["ville"][1] in DEPS:
+            rel_ville[(slug(r["ville"][0]), r["ville"][1])].append(r)
+    VILLES = {k: max(formes[k], key=lambda f: (formes[k][f], sum(ord(ch) > 127 or ch == "-" for ch in f))) for k in par_ville if len(par_ville[k]) >= 3}
+    vslug = {k: f"{k[0]}-{k[1].lower()}" for k in VILLES}
+    villes_dep = defaultdict(list)
+    for k in sorted(VILLES, key=lambda k: -len(par_ville[k])):
+        villes_dep[k[1]].append(k)
+    print(f"[site] {len(VILLES)} villes avec au moins 3 annonces ouvertes")
     tri_met = sorted(metiers, key=lambda s: (-len(par_met[s]), metiers[s]))
     actifs = [s for s in tri_met if par_met[s]]
 
@@ -1070,8 +1120,10 @@ def main():
 <li><b>Téléchargez le dossier</b><span>Un lien direct vers les documents à remplir, sur la plateforme de l'acheteur.</span></li></ol>
 <aside class="appel"><div><b>{len(RELANCES)} marchés arrivent à échéance dans les douze mois</b><span>Voyez quels contrats de votre métier vont être remis en jeu, et qui les détient aujourd'hui.</span></div><a class="bouton" href="relances/">Voir les marchés bientôt relancés</a></aside>
 <section class="bloc" id="departements"><h2>Par département</h2>{"".join(f'<h3 class="sous">{E(nomr)}</h3>' + liens([(DEPS[c][0], f"{dslug[c]}/", len(par_dep[c])) for c in DEPS if REG_DE[c] == r], "deps") for r, nomr in REGIONS.items())}</section>
+<section class="bloc"><h2>Les villes les plus actives</h2>{liens([(VILLES[k], f"ville/{vslug[k]}/", len(par_ville[k])) for k in sorted(VILLES, key=lambda k: -len(par_ville[k]))[:36]])}</section>
 <section class="bloc"><h2>Les métiers les plus demandés</h2>{liens([(metiers[s], f"metier/{s}/", len(par_met[s])) for s in actifs[:24]])}
 <p><a class="suite" href="metiers/">Voir les {len(actifs)} métiers</a></p></section>
+<section class="bloc"><h2>Vous débutez dans les marchés publics ?</h2><ul class="guides">{"".join(f'<li><a href="guides/{g["slug"]}/"><b>{E(g["titre"])}</b><span>{E(g["resume"])}</span></a></li>' for g in guides.GUIDES[:3])}</ul><p><a class="suite" href="guides/">Tous les guides</a></p></section>
 <section class="bloc"><h2>À remettre dans les 7 jours</h2><p class="intro">{len(semaine)} annonce{'s' if len(semaine) > 1 else ''} arrive{'nt' if len(semaine) > 1 else ''} à échéance cette semaine.</p>{bloc_liste(sorted(semaine, key=lambda a: a['limite'])[:20], filtres=False)}</section>"""
     page("", f"Appels d'offres en France : {n_avis(len(ouverts))} | {SITE}",
          f"Les marchés publics ouverts en France, triés par métier et par département, avec le dossier à télécharger et les entreprises déjà retenues par chaque acheteur.", corps, large=True)
@@ -1089,6 +1141,7 @@ def main():
         mets = sorted({s for s in combos_dep[c] if par_combo[(c, s)] or len(RES_COMBO.get((c, s), [])) >= 2}, key=lambda s: (-len(par_combo[(c, s)]), metiers[s]))
         corps = f"""<h1>Appels d'offres {prep}</h1>
 <p class="intro">{n_avis(len(av))} au {fr(TODAY)}, de la plus urgente à la plus lointaine.</p>
+{f'<section class="bloc"><h2>Par ville</h2>{liens([(VILLES[k], f"../ville/{vslug[k]}/", len(par_ville[k])) for k in villes_dep[c][:24]])}</section>' if villes_dep.get(c) else ''}
 <section class="bloc"><h2>Affiner par métier</h2>{liens([(metiers[s], f"{s}/", len(par_combo[(c, s)])) for s in mets if par_combo[(c, s)]]) if av else ''}</section>
 {f'<aside class="appel"><div><b>{len(REL_DEP[c])} marchés arrivent à échéance {prep}</b><span>Les contrats qui se terminent dans les douze mois, et les entreprises qui les détiennent.</span></div><a class="bouton" href="relances/">Voir ces marchés</a></aside>' if REL_DEP.get(c) else ''}
 <section class="bloc"><h2>Toutes les annonces {prep}</h2>{bloc_liste(av, "../")}</section>
@@ -1118,6 +1171,23 @@ def main():
         page_avis(a, metiers, dslug)
     pages_entreprises(resultats, metiers)
     page_pro()
+    pages_guides()
+    for k, nom in VILLES.items():
+        c, av, rv = k[1], par_ville[k], rel_ville.get(k, [])
+        lieu = a_ville(nom)
+        mets = defaultdict(int)
+        for a in av:
+            for m in a["metiers"]:
+                mets[slug(m)] += 1
+        top = sorted(mets, key=lambda s_: -mets[s_])[:12]
+        page(f"ville/{vslug[k]}", f"Appels d'offres {lieu} ({c}) : {n_avis(len(av))} | {SITE}",
+             f"Marchés publics ouverts {lieu} au {fr(TODAY)} : date limite, dossier à télécharger et entreprises déjà retenues par chaque acheteur.",
+             f"""<h1>Appels d'offres {lieu}</h1>
+<p class="intro">{n_avis(len(av))} au {fr(TODAY)}, publiée{'s' if len(av) > 1 else ''} par des acheteurs dont le siège est {lieu}. Voir aussi <a href="../../{dslug[c]}/">toutes les annonces {DEPS[c][1]}</a>.</p>
+{f'<section class="bloc"><h2>Les métiers recherchés {lieu}</h2><p class="rubriques">{"".join(f"<a href=\"../../{dslug[c]}/{s_}/\">{E(metiers[s_])}</a>" for s_ in top if par_combo.get((c, s_)))}</p></section>' if top else ''}
+<section class="bloc"><h2>Les annonces ouvertes</h2>{bloc_liste(av, "../../")}</section>
+{bloc_relances(rv, "../../", f"Les marchés qui arrivent à échéance {lieu}", "Des marchés attribués par des acheteurs de cette ville, dont la période se termine dans les douze mois.", 10)}
+{BANDEAU("../../", d=c) if ALERTES else ''}""", fil=[("Accueil", ""), (DEPS[c][0], f"{dslug[c]}/")])
     page("relances", f"Marchés publics bientôt relancés en France | {SITE}", f"{len(RELANCES)} marchés publics arrivent à échéance dans les douze mois en France : acheteur, entreprise en place, date de fin prévue.",
          f"""<p class="etiquette">Fonction Pro, en accès libre pendant le lancement</p>
 <h1>Les marchés qui arrivent à échéance</h1>
@@ -1187,7 +1257,7 @@ def main():
         sys.exit("Site trop lourd pour l'hébergement (plus de 950 Mo) : le site en ligne est laissé tel quel.")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n")
     Path("data").mkdir(exist_ok=True)
-    Path("data/etat.json").write_text(json.dumps({"date": TODAY.isoformat(), "recus": recus, "retenus": len(tous), "ouverts": len(ouverts), "resultats": len(resultats), "avec_historique": len(HIST), "fiches_entreprises": len(FICHES), "relances": len(RELANCES), "pages_indexables": len(SITEMAP), "poids_mo": round(poids / 1e6)}, indent=1) + "\n")
+    Path("data/etat.json").write_text(json.dumps({"date": TODAY.isoformat(), "recus": recus, "retenus": len(tous), "ouverts": len(ouverts), "resultats": len(resultats), "avec_historique": len(HIST), "fiches_entreprises": len(FICHES), "relances": len(RELANCES), "villes": len(VILLES), "pages_indexables": len(SITEMAP), "poids_mo": round(poids / 1e6)}, indent=1) + "\n")
     print(f"[site] {len(SITEMAP)} pages indexables écrites dans {OUT}/")
 
 

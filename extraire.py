@@ -278,3 +278,48 @@ def contact_acheteur(donnees):
         mail = ""
     tel = re.sub(r"[^0-9+ ]", "", tel).strip()
     return {k: v for k, v in (("mail", mail), ("tel", tel if 9 <= len(re.sub(r"\D", "", tel)) <= 13 else "")) if v}
+
+
+PETITS = {"de", "du", "des", "la", "le", "les", "sur", "sous", "en", "et", "aux", "au", "lès", "les", "lez", "d", "l"}
+
+
+def _nom_ville(v):
+    v = re.sub(r"\bcedex\b.*$", "", v, flags=re.I)
+    v = re.sub(r"\s+\d+\s*(er|e|eme|ème)?(\s+arrondissement)?\s*$", "", v, flags=re.I)
+    v = re.sub(r"[\d_,;:()]+", " ", v)
+    v = " ".join(v.replace("’", "'").split()).strip(" -'")
+    if not 2 <= len(v) <= 45:
+        return ""
+    def mot(m, premier):
+        b = m.lower()
+        return b if (b in PETITS and not premier) else b[:1].upper() + b[1:]
+    out = []
+    for i, bloc in enumerate(re.split(r"(\s+|-|')", v)):
+        out.append(bloc if re.fullmatch(r"\s+|-|'", bloc) else mot(bloc, i == 0))
+    nom = "".join(out)
+    nom = re.sub(r"\b(Saint|Sainte|St|Ste) ", lambda m: {"St": "Saint", "Ste": "Sainte"}.get(m.group(1), m.group(1)) + "-", nom)
+    return nom
+
+
+def ville_acheteur(donnees):
+    """Ville et département du siège de l'acheteur, d'après l'adresse publiée dans l'avis. Renvoie (nom, code département) ou None."""
+    d = charger(donnees)
+    ville = cp = ""
+    if "EFORMS" in d:
+        e = d["EFORMS"]
+        ids = _ids_acheteur(e)
+        for o in trouver(e, "efac:Company"):
+            if isinstance(o, dict) and ids & {txt(i) for i in trouver(o.get("cac:PartyIdentification"), "cbc:ID")}:
+                a = o.get("cac:PostalAddress") if isinstance(o.get("cac:PostalAddress"), dict) else {}
+                ville, cp = txt(a.get("cbc:CityName")), txt(a.get("cbc:PostalZone"))
+                break
+    else:
+        org = next((v for v in trouver(d, "organisme") if isinstance(v, dict)), {})
+        adr = org.get("adr") if isinstance(org.get("adr"), dict) else {}
+        ville, cp = txt(org.get("ville")) or txt(adr.get("ville")), txt(org.get("cp")) or txt(adr.get("cp"))
+    cp = re.sub(r"\D", "", cp)
+    nom = _nom_ville(ville)
+    if not nom or len(cp) != 5:
+        return None
+    dep = cp[:3] if cp.startswith("97") else ("2A" if cp < "20200" else "2B") if cp.startswith("20") else cp[:2]
+    return nom, dep
