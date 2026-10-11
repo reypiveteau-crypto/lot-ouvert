@@ -356,13 +356,14 @@ def page(chemin, titre, desc, corps, index=True, fil=(), large=False):
 <meta property="og:title" content="{E(titre)}"><meta property="og:description" content="{E(desc)}"><meta property="og:type" content="website">
 <meta name="google-site-verification" content="Bn20ldA-SUhsySdq8ciYJMOjD6Uqmb6ymF6bQsDG6r8">
 <meta property="og:url" content="{E(canon)}"><meta property="og:site_name" content="{SITE}"><meta property="og:locale" content="fr_FR">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131a2b'/%3E%3Crect x='7' y='7' width='18' height='18' fill='%23ffcf1a'/%3E%3C/svg%3E">
+<link rel="icon" href="{rel}logo.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="{rel}icone-180.png">
+<meta property="og:image" content="{BASE}/apercu.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="{E(canon)}">{'' if index else '<meta name="robots" content="noindex,follow">'}{f'<script type="application/ld+json">{ld}</script>' if ld else ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
 <link rel="stylesheet" href="{rel}style.css"></head><body>
 <a class="saut" href="#contenu">Aller au contenu</a>
-<header class="tete"><div class="cadre"><a class="marque" href="{rel or './'}"><span class="pastille" aria-hidden="true"></span>{SITE}</a>
+<header class="tete"><div class="cadre"><a class="marque" href="{rel or './'}"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M38 14H14v36h36V26" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="square"/><rect x="38" y="8" width="18" height="18" fill="var(--jaune)" stroke="currentColor" stroke-width="3"/></svg>{SITE}</a>
 <nav aria-label="Navigation principale"><a href="{rel}#departements">Départements</a><a href="{rel}metiers/">Métiers</a><a href="{rel}relances/">Bientôt relancés</a><a href="{rel}guides/">Guides</a><a href="{rel}pro/">Version Pro</a>{f'<a class="inscrire" href="{rel}inscription/">Alertes gratuites</a>' if ALERTES else ''}</nav></div></header>
 <main id="contenu" class="cadre{' large' if large else ''}">{f'<nav class="fil" aria-label="Fil d’Ariane">{crumbs}</nav>' if crumbs else ''}
 {corps}
@@ -759,7 +760,7 @@ h2{font:700 clamp(1.45rem,3vw,1.85rem)/1.1 var(--titre)}p{margin:0}
 
 .tete{background:var(--carte);border-bottom:1px solid var(--trait)}.tete .cadre{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;padding-block:.8rem;max-width:72rem}
 .marque{font:700 1.55rem/1 var(--titre);color:var(--encre);text-decoration:none;display:flex;align-items:center;gap:.5rem}
-.pastille{width:.95rem;height:.95rem;background:var(--jaune);border:2px solid var(--encre);display:inline-block}
+.logo{width:1.7rem;height:1.7rem;flex:none}
 .tete nav{display:flex;gap:1.3rem;flex-wrap:wrap}.tete nav a{color:var(--encre);text-decoration:none;font-weight:500}.tete nav a:hover{text-decoration:underline}
 main{padding-block:1.6rem 4rem;display:flex;flex-direction:column;gap:2.6rem}
 .fil{font-size:.92rem;color:var(--doux)}.fil a{color:var(--doux)}
@@ -1049,6 +1050,8 @@ def main():
     (OUT / "style.css").write_text(CSS, encoding="utf-8")
     (OUT / "site.js").write_text(SITE_JS, encoding="utf-8")
     (OUT / ".nojekyll").write_text("")
+    for f in Path("assets").glob("*"):
+        (OUT / f.name).write_bytes(f.read_bytes())
 
     # métiers = mots-clés du BOAMP vus sur la fenêtre (pages stables même quand une rubrique est vide un jour)
     metiers = {}
